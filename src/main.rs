@@ -8,13 +8,15 @@ mod scenes;
 mod textures;
 mod volume;
 
+use std::thread::Builder;
+
 use crate::scenes::{
     cornell_box_scene, cornell_smoke_scene, earth_scene, quads_scene, random_spheres_scene,
     simple_list_scene, two_perlin_spheres_scene, two_spheres_scene,
 };
 use std::fs::File;
 
-fn main() {
+fn uncapped_main() {
     let (cam, world);
 
     match 8 {
@@ -50,4 +52,16 @@ fn main() {
     let mut out_file = File::create("./image.ppm").expect("Couldn't Open File!");
 
     cam.render(&mut out_file, &world);
+}
+
+fn main() {
+    let builder = Builder::new()
+        .name("reductor".into())
+        .stack_size(32 * 1024 * 1024); // 32MB of stack space
+
+    let handler = builder.spawn(|| {
+        uncapped_main();
+    }).unwrap();
+
+    handler.join().unwrap();
 }

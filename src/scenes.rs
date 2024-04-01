@@ -585,53 +585,53 @@ pub fn cornell_smoke_scene() -> (Camera, HittableList) {
 }
 
 
-fn final_scene(image_width: i64, samples_per_pixel: i64, max_depth: i64) -> (Camera, HittableList) {
-    let mut world = HittableList::blank();
-
-    let boxes1;
-    let ground = Rc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(0.48, 0.83, 0.53))));
-    let boxes_per_side = 20;
-    for i in 0..boxes_per_side {
-        for j in 0..boxes_per_side {
-            let w = 100.0;
-            let x0 = -1000.0 + i * w;
-            let z0 = -1000.0 + j * w;
-            let y0 = 0.0;
-            let x1 = x0 + w;
-            let y1 = random_double_bounded(1.0, 101.0);
-            let z1 = z0 + w;
-
-            boxes1.add(Quad::make_box(&Point3::from(x0, y0, z0), &Point3::from(x1, y1, z1), ground.clone()));
-        }
-    }
-
-
-    let aspect_ratio = 1.0;
-    let background = Color::from(0.0, 0.0, 0.0);
-
-    let vfov = 40.0;
-    let lookfrom = Point3::from(478.0, 278.0, -600.0);
-    let lookat = Point3::from(278.0, 278.0, 0.0);
-    let vup = Vec3::from(0.0, 1.0, 0.0);
-
-    let defocus_angle = 0.0;
-
-    let cam = Camera::initialize(
-        aspect_ratio,
-        image_width,
-        samples_per_pixel,
-        max_depth,
-        vfov,
-        lookfrom,
-        lookat,
-        vup,
-        defocus_angle,
-        10.0,
-        background,
-    );
-
-    (cam, world)
-}
+// fn final_scene(image_width: i64, samples_per_pixel: i64, max_depth: i64) -> (Camera, HittableList) {
+//     let mut world = HittableList::blank();
+//
+//     let boxes1;
+//     let ground = Rc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(0.48, 0.83, 0.53))));
+//     let boxes_per_side = 20;
+//     for i in 0..boxes_per_side {
+//         for j in 0..boxes_per_side {
+//             let w = 100.0;
+//             let x0 = -1000.0 + i * w;
+//             let z0 = -1000.0 + j * w;
+//             let y0 = 0.0;
+//             let x1 = x0 + w;
+//             let y1 = random_double_bounded(1.0, 101.0);
+//             let z1 = z0 + w;
+//
+//             boxes1.add(Quad::make_box(&Point3::from(x0, y0, z0), &Point3::from(x1, y1, z1), ground.clone()));
+//         }
+//     }
+//
+//
+//     let aspect_ratio = 1.0;
+//     let background = Color::from(0.0, 0.0, 0.0);
+//
+//     let vfov = 40.0;
+//     let lookfrom = Point3::from(478.0, 278.0, -600.0);
+//     let lookat = Point3::from(278.0, 278.0, 0.0);
+//     let vup = Vec3::from(0.0, 1.0, 0.0);
+//
+//     let defocus_angle = 0.0;
+//
+//     let cam = Camera::initialize(
+//         aspect_ratio,
+//         image_width,
+//         samples_per_pixel,
+//         max_depth,
+//         vfov,
+//         lookfrom,
+//         lookat,
+//         vup,
+//         defocus_angle,
+//         10.0,
+//         background,
+//     );
+//
+//     (cam, world)
+// }
 //void final_scene(int image_width, int samples_per_pixel, int max_depth) {
 //     hittable_list boxes1;
 //     auto ground = make_shared<lambertian>(color(0.48, 0.83, 0.53));
