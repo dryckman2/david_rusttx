@@ -1,6 +1,6 @@
 use crate::math_structures::color::Color;
+use crate::math_structures::vec3::Point3;
 use crate::textures::texture::Texture;
-use crate::math_structures::vec3::{Point3};
 
 #[derive(Clone)]
 pub struct SolidColor {

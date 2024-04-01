@@ -1,16 +1,18 @@
 mod camera;
+mod hittables;
 mod materials;
+mod math_structures;
 mod rtw_image;
 mod rtweekend;
 mod scenes;
-mod hittables;
 mod textures;
-mod math_structures;
 mod volume;
 
+use crate::scenes::{
+    cornell_box_scene, cornell_smoke_scene, earth_scene, quads_scene, random_spheres_scene,
+    simple_list_scene, two_perlin_spheres_scene, two_spheres_scene,
+};
 use std::fs::File;
-use crate::scenes::{cornell_box_scene, cornell_smoke_scene, earth_scene, quads_scene, random_spheres_scene, simple_list_scene, two_perlin_spheres_scene, two_spheres_scene};
-
 
 fn main() {
     let (cam, world);

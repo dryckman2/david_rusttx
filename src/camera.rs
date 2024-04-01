@@ -1,15 +1,15 @@
 use crate::hittables::hittable::{HitRecord, Hittable};
 use crate::hittables::hittable_list::HittableList;
+use crate::materials::material::Material;
+use crate::math_structures::color::foo::fmt_to_file;
+use crate::math_structures::color::{write_color, Color};
 use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
+use crate::math_structures::vec3::{random_in_unit_disk, Point3, Vec3};
 use crate::rtweekend::{degrees_to_radians, random_double, INFINITY};
 use std::fs::File;
 use std::io;
 use std::io::Write;
-use crate::math_structures::color::{Color, write_color};
-use crate::math_structures::color::foo::fmt_to_file;
-use crate::math_structures::vec3::{Point3, random_in_unit_disk, Vec3};
-use crate::materials::material::Material;
 
 pub struct Camera {
     pub image_width: i64,
@@ -160,7 +160,6 @@ impl Camera {
         &(px * &self.pixel_delta_u) + &(py * &self.pixel_delta_v)
     }
 
-
     pub fn ray_color(&self, r: &Ray, depth: i64, world: &HittableList) -> Color {
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if depth <= 0 {
@@ -170,7 +169,9 @@ impl Camera {
         let mut rec;
         // If the ray hits nothing, return the background color.
         match world.hit(r, &Interval::from(0.001, INFINITY)) {
-            None => { return self.background; }
+            None => {
+                return self.background;
+            }
             Some(x) => {
                 rec = x;
             }

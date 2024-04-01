@@ -1,6 +1,6 @@
-use crate::math_structures::aabb::Aabb;
 use crate::hittables::hittable::{HitRecord, Hittable};
 use crate::hittables::hittable_list::HittableList;
+use crate::math_structures::aabb::Aabb;
 use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
 use crate::rtweekend::random_int_bounded;

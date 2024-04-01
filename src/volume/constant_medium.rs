@@ -1,20 +1,20 @@
-use std::io::Write;
-use std::ops::Deref;
-use std::process::exit;
-use std::rc::Rc;
 use crate::hittables::hittable::{HitRecord, Hittable};
 use crate::materials::isotropical::Isotropic;
-use crate::materials::MatEnum;
 use crate::materials::material::Material;
+use crate::materials::MatEnum;
 use crate::math_structures::aabb::Aabb;
 use crate::math_structures::color::Color;
 use crate::math_structures::interval;
 use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::Vec3;
-use crate::rtweekend::{INFINITY, random_double};
-use crate::textures::TexEnum;
+use crate::rtweekend::{random_double, INFINITY};
 use crate::textures::texture::Texture;
+use crate::textures::TexEnum;
+use std::io::Write;
+use std::ops::Deref;
+use std::process::exit;
+use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct ConstantMedium {
@@ -52,14 +52,23 @@ impl Hittable for ConstantMedium {
 
         let mut rec1;
         match self.boundary.hit(r, &interval::UNIVERSE) {
-            None => { return None; }
-            Some(x) => { rec1 = x }
+            None => {
+                return None;
+            }
+            Some(x) => rec1 = x,
         }
 
         let mut rec2;
-        match self.boundary.hit(r, &Interval::from(rec1.t + 0.001, INFINITY)) {
-            None => { return None; }
-            Some(x) => { rec2 = x; }
+        match self
+            .boundary
+            .hit(r, &Interval::from(rec1.t + 0.001, INFINITY))
+        {
+            None => {
+                return None;
+            }
+            Some(x) => {
+                rec2 = x;
+            }
         }
 
         if rec1.t < ray_t.min {
@@ -85,12 +94,11 @@ impl Hittable for ConstantMedium {
             return None;
         }
 
-
         let t = rec1.t + hit_distance / ray_length;
         let p = r.at(t);
         let rec = HitRecord {
             p,
-            normal: Vec3::from(1.0, 0.0, 0.0),  // arbitrary
+            normal: Vec3::from(1.0, 0.0, 0.0), // arbitrary
             t,
             mat: self.phase_function.clone(),
             front_face: true, // also arbitrary

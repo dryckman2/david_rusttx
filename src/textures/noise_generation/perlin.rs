@@ -1,5 +1,5 @@
-use crate::rtweekend::{random_double, random_int_bounded};
 use crate::math_structures::vec3::{Point3, Vec3};
+use crate::rtweekend::{random_double, random_int_bounded};
 
 const POINT_COUNT: usize = 256;
 
@@ -40,11 +40,11 @@ impl Perlin {
         for di in 0..2 {
             for dj in 0..2 {
                 for dk in 0..2 {
-                    c[di][dj][dk] = self.ranvec[
-                        (self.perm_x[(i as u128 + di as u128) as usize & 255] ^
-                            self.perm_y[(j as u128 + dj as u128) as usize & 255] ^
-                            self.perm_z[(k as u128 + dk as u128) as usize & 255]) as usize
-                        ];
+                    c[di][dj][dk] = self.ranvec[(self.perm_x
+                        [(i as u128 + di as u128) as usize & 255]
+                        ^ self.perm_y[(j as u128 + dj as u128) as usize & 255]
+                        ^ self.perm_z[(k as u128 + dk as u128) as usize & 255])
+                        as usize];
                 }
             }
         }

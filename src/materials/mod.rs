@@ -4,12 +4,12 @@ use crate::math_structures::color::Color;
 use crate::math_structures::ray::Ray;
 use enum_dispatch::enum_dispatch;
 
-pub mod material;
-pub mod lambertian;
-pub mod metal;
 pub mod dielectric;
 pub mod diffuse_light;
 pub mod isotropical;
+pub mod lambertian;
+pub mod material;
+pub mod metal;
 
 use crate::math_structures::vec3::Point3;
 
@@ -22,6 +22,3 @@ pub enum MatEnum {
     DiffuseLight(diffuse_light::DiffuseLight),
     Isotropic(isotropical::Isotropic),
 }
-
-
-

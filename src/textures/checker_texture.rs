@@ -1,7 +1,7 @@
 use crate::math_structures::color::Color;
+use crate::math_structures::vec3::{Point3, Vec3};
 use crate::textures::solid_color::SolidColor;
 use crate::textures::texture::Texture;
-use crate::math_structures::vec3::{Point3, Vec3};
 use crate::textures::TexEnum;
 
 #[derive(Clone)]
@@ -12,11 +12,7 @@ pub struct CheckerTexture {
 }
 
 impl CheckerTexture {
-    pub fn from_textures(
-        scale: f64,
-        even: Box<TexEnum>,
-        odd: Box<TexEnum>,
-    ) -> CheckerTexture {
+    pub fn from_textures(scale: f64, even: Box<TexEnum>, odd: Box<TexEnum>) -> CheckerTexture {
         CheckerTexture {
             inv_scale: 1.0 / scale,
             even,

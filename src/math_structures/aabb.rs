@@ -2,8 +2,8 @@ use std::mem::swap;
 use std::ops::Add;
 
 use crate::math_structures::interval::Interval;
-use crate::math_structures::vec3::{Point3, Vec3};
 use crate::math_structures::ray::Ray;
+use crate::math_structures::vec3::{Point3, Vec3};
 
 #[derive(Clone)]
 pub struct Aabb {
@@ -83,9 +83,21 @@ impl Aabb {
     pub fn pad(&self) -> Aabb {
         // Return an AABB that has no side narrower than some delta, padding if necessary.
         let delta = 0.0001;
-        let new_x = if (self.x.size() >= delta) { self.x.clone() } else { self.x.expand(delta) };
-        let new_y = if (self.y.size() >= delta) { self.y.clone() } else { self.y.expand(delta) };
-        let new_z = if (self.z.size() >= delta) { self.z.clone() } else { self.z.expand(delta) };
+        let new_x = if (self.x.size() >= delta) {
+            self.x.clone()
+        } else {
+            self.x.expand(delta)
+        };
+        let new_y = if (self.y.size() >= delta) {
+            self.y.clone()
+        } else {
+            self.y.expand(delta)
+        };
+        let new_z = if (self.z.size() >= delta) {
+            self.z.clone()
+        } else {
+            self.z.expand(delta)
+        };
 
         Aabb::from(new_x, new_y, new_z)
     }

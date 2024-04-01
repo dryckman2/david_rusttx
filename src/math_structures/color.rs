@@ -1,8 +1,8 @@
+use crate::math_structures::color::foo::fmt_to_file;
 use crate::math_structures::interval::Interval;
+use crate::math_structures::vec3::Vec3;
 use std::fs::File;
 use std::io::Write;
-use crate::math_structures::color::foo::fmt_to_file;
-use crate::math_structures::vec3::Vec3;
 
 pub type Color = Vec3;
 

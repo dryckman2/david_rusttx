@@ -69,10 +69,11 @@ impl Hittable for RotateY {
         // Determine where (if any) an intersection occurs in object space
         let mut rec;
         match { self.object.hit(&rotated_r, ray_t) } {
-            None => { return None; }
-            Some(x) => { rec = x }
+            None => {
+                return None;
+            }
+            Some(x) => rec = x,
         };
-
 
         // Change the intersection point from object space to world space
         let mut p = rec.p;

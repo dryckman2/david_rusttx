@@ -1,10 +1,9 @@
-use crate::math_structures::color::Color;
 use crate::hittables::hittable::HitRecord;
 use crate::materials::material::Material;
+use crate::math_structures::color::Color;
 use crate::math_structures::ray::Ray;
+use crate::math_structures::vec3::{reflect, Point3, Vec3};
 use crate::rtweekend::random_double;
-use crate::math_structures::vec3::{Point3, reflect, Vec3};
-
 
 #[derive(Clone)]
 pub struct Dielectric {
@@ -52,5 +51,4 @@ impl Material for Dielectric {
             Ray::from_set_time(rec.p, direction, r_in.time()),
         ))
     }
-
 }

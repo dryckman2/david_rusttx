@@ -1,21 +1,22 @@
-use std::rc::Rc;
-use crate::math_structures::aabb::Aabb;
-use crate::math_structures::color::Color;
+use std::ops::Deref;
 use crate::hittables::hittable::{HitRecord, Hittable};
 use crate::hittables::hittable_list::HittableList;
-use crate::math_structures::interval::Interval;
 use crate::materials::lambertian::Lambertian;
-use crate::materials::MatEnum;
 use crate::materials::material::Material;
-use crate::math_structures::vec3::{Point3, Vec3};
+use crate::materials::MatEnum;
+use crate::math_structures::aabb::Aabb;
+use crate::math_structures::color::Color;
+use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
+use crate::math_structures::vec3::{Point3, Vec3};
+use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct Quad {
     q: Point3,
     u: Vec3,
     v: Vec3,
-    mat: MatEnum,
+    mat: Rc<MatEnum>,
     bbox: Aabb,
     normal: Vec3,
     d: f64,
@@ -23,18 +24,17 @@ pub struct Quad {
 }
 
 impl Quad {
-    pub fn from(q: Point3, u: Vec3, v: Vec3, mat: MatEnum) -> Quad {
-        let mut this =
-            Quad {
-                q,
-                u,
-                v,
-                mat,
-                bbox: Aabb::blank(),
-                normal: Vec3::blank(),
-                d: 0.0,
-                w: Vec3::blank(),
-            };
+    pub fn from(q: Point3, u: Vec3, v: Vec3, mat: Rc<MatEnum>) -> Quad {
+        let mut this = Quad {
+            q,
+            u,
+            v,
+            mat,
+            bbox: Aabb::blank(),
+            normal: Vec3::blank(),
+            d: 0.0,
+            w: Vec3::blank(),
+        };
         let n = Vec3::cross(&u, &v);
         this.normal = Vec3::unit_vector(&n);
         this.d = Vec3::dot(&this.normal, &this.q);
@@ -44,24 +44,62 @@ impl Quad {
         this
     }
 
-    pub fn make_box(a: &Point3, b: &Point3, mat: MatEnum) -> Box<HittableList> {
+    pub fn make_box(a: &Point3, b: &Point3, mat: Rc<MatEnum>) -> Box<HittableList> {
         // Returns the 3D box (six sides) that contains the two opposite vertices a & b.
         let mut sides = HittableList::blank();
 
         // Construct the two opposite vertices with the minimum and maximum coordinates.
-        let min = Point3::from(f64::min(a.x(), b.x()), f64::min(a.y(), b.y()), f64::min(a.z(), b.z()));
-        let max = Point3::from(f64::max(a.x(), b.x()), f64::max(a.y(), b.y()), f64::max(a.z(), b.z()));
+        let min = Point3::from(
+            f64::min(a.x(), b.x()),
+            f64::min(a.y(), b.y()),
+            f64::min(a.z(), b.z()),
+        );
+        let max = Point3::from(
+            f64::max(a.x(), b.x()),
+            f64::max(a.y(), b.y()),
+            f64::max(a.z(), b.z()),
+        );
 
         let dx = Vec3::from(max.x() - min.x(), 0.0, 0.0);
         let dy = Vec3::from(0.0, max.y() - min.y(), 0.0);
         let dz = Vec3::from(0.0, 0.0, max.z() - min.z());
 
-        sides.add(Box::new(Quad::from(Point3::from(min.x(), min.y(), max.z()), dx, dy, mat.clone()))); // front
-        sides.add(Box::new(Quad::from(Point3::from(max.x(), min.y(), max.z()), -&dz, dy, mat.clone()))); // right
-        sides.add(Box::new(Quad::from(Point3::from(max.x(), min.y(), min.z()), -&dx, dy, mat.clone()))); // back
-        sides.add(Box::new(Quad::from(Point3::from(min.x(), min.y(), min.z()), dz, dy, mat.clone()))); // left
-        sides.add(Box::new(Quad::from(Point3::from(min.x(), max.y(), max.z()), dx, -&dz, mat.clone()))); // top
-        sides.add(Box::new(Quad::from(Point3::from(min.x(), min.y(), min.z()), dx, dz, mat.clone()))); // bottom
+        sides.add(Box::new(Quad::from(
+            Point3::from(min.x(), min.y(), max.z()),
+            dx,
+            dy,
+            mat.clone(),
+        ))); // front
+        sides.add(Box::new(Quad::from(
+            Point3::from(max.x(), min.y(), max.z()),
+            -&dz,
+            dy,
+            mat.clone(),
+        ))); // right
+        sides.add(Box::new(Quad::from(
+            Point3::from(max.x(), min.y(), min.z()),
+            -&dx,
+            dy,
+            mat.clone(),
+        ))); // back
+        sides.add(Box::new(Quad::from(
+            Point3::from(min.x(), min.y(), min.z()),
+            dz,
+            dy,
+            mat.clone(),
+        ))); // left
+        sides.add(Box::new(Quad::from(
+            Point3::from(min.x(), max.y(), max.z()),
+            dx,
+            -&dz,
+            mat.clone(),
+        ))); // top
+        sides.add(Box::new(Quad::from(
+            Point3::from(min.x(), min.y(), min.z()),
+            dx,
+            dz,
+            mat.clone(),
+        ))); // bottom
 
         Box::new(sides)
     }
@@ -106,7 +144,6 @@ impl Hittable for Quad {
             return None;
         }
 
-
         // Determine the hit point lies within the planar shape using its plane coordinates.
         let intersection = r.at(t);
         let planar_hitpt_vector = &intersection - &self.q;
@@ -128,7 +165,7 @@ impl Hittable for Quad {
             p: intersection,
             normal: Vec3::blank(),
             t,
-            mat: self.mat.clone(),
+            mat: self.mat.deref().clone(),
             front_face: false,
             u: inter_rec.u,
             v: inter_rec.v,

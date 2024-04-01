@@ -30,8 +30,12 @@ impl Hittable for Translate {
         // Determine where (if any) an intersection occurs along the offset ray
         let mut rec;
         match self.object.hit(&offset_r, ray_t) {
-            None => { return None; }
-            Some(x) => { rec = x; }
+            None => {
+                return None;
+            }
+            Some(x) => {
+                rec = x;
+            }
         }
         // Move the intersection point forwards by the offset
         rec.p += &self.offset;

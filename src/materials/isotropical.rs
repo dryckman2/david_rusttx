@@ -4,8 +4,8 @@ use crate::math_structures::color::Color;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::Vec3;
 use crate::textures::solid_color::SolidColor;
-use crate::textures::TexEnum;
 use crate::textures::texture::Texture;
+use crate::textures::TexEnum;
 
 #[derive(Clone)]
 pub struct Isotropic {
@@ -14,7 +14,9 @@ pub struct Isotropic {
 
 impl Isotropic {
     pub fn from_color(c: Color) -> Isotropic {
-        Isotropic { albedo: TexEnum::SolidColor(SolidColor::from(c)) }
+        Isotropic {
+            albedo: TexEnum::SolidColor(SolidColor::from(c)),
+        }
     }
 
     pub fn from_texture(a: TexEnum) -> Isotropic {

@@ -1,9 +1,11 @@
+use crate::rtweekend::INFINITY;
 use std::mem::discriminant;
 use std::ops::Add;
-use crate::rtweekend::INFINITY;
 
-
-pub const UNIVERSE: Interval = Interval { min: -INFINITY, max: INFINITY };
+pub const UNIVERSE: Interval = Interval {
+    min: -INFINITY,
+    max: INFINITY,
+};
 
 #[derive(Clone)]
 pub struct Interval {
