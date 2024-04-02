@@ -15,16 +15,17 @@ use std::io::Write;
 use std::ops::Deref;
 use std::process::exit;
 use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct ConstantMedium {
-    boundary: Box<dyn Hittable>,
+    boundary: Arc<dyn Hittable + Send + Sync>,
     neg_inv_density: f64,
     phase_function: MatEnum,
 }
 
 impl ConstantMedium {
-    pub fn from_texture(b: Box<dyn Hittable>, d: f64, a: TexEnum) -> ConstantMedium {
+    pub fn from_texture(b: Arc<dyn Hittable + Send + Sync>, d: f64, a: TexEnum) -> ConstantMedium {
         let phase_function = MatEnum::Isotropic(Isotropic::from_texture(a));
         ConstantMedium {
             boundary: b,
@@ -33,7 +34,7 @@ impl ConstantMedium {
         }
     }
 
-    pub fn from_color(b: Box<dyn Hittable>, d: f64, c: Color) -> ConstantMedium {
+    pub fn from_color(b: Arc<dyn Hittable + Send + Sync>, d: f64, c: Color) -> ConstantMedium {
         let phase_function = MatEnum::Isotropic(Isotropic::from_color(c));
         ConstantMedium {
             boundary: b,

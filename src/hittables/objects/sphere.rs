@@ -1,4 +1,3 @@
-use std::ops::Deref;
 use crate::hittables::hittable::{HitRecord, Hittable};
 use crate::materials::material::Material;
 use crate::materials::MatEnum;
@@ -7,20 +6,22 @@ use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::{Point3, Vec3};
 use crate::rtweekend::PI;
+use std::ops::Deref;
 use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct Sphere {
     center1: Point3,
     radius: f64,
-    mat: Rc<MatEnum>,
+    mat: Arc<MatEnum>,
     is_moving: bool,
     center_vec: Vec3,
     bbox: Aabb,
 }
 
 impl Sphere {
-    pub fn from(center: Point3, radius: f64, mat: Rc<MatEnum>) -> Sphere {
+    pub fn from(center: Point3, radius: f64, mat: Arc<MatEnum>) -> Sphere {
         let rvec = Vec3::from(radius, radius, radius);
         let bbox = Aabb::from_points(&(&center - &rvec), &(&center + &rvec));
         Sphere {
@@ -33,7 +34,7 @@ impl Sphere {
         }
     }
 
-    pub fn from_moving(center1: Point3, center2: Point3, radius: f64, mat: Rc<MatEnum>) -> Sphere {
+    pub fn from_moving(center1: Point3, center2: Point3, radius: f64, mat: Arc<MatEnum>) -> Sphere {
         let rvec = Vec3::from(radius, radius, radius);
         let box1 = Aabb::from_points(&(&center1 - &rvec), &(&center1 + &rvec));
         let box2 = Aabb::from_points(&(&center2 - &rvec), &(&center2 + &rvec));

@@ -5,11 +5,12 @@ use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
 use crate::rtweekend::random_int_bounded;
 use std::cmp::Ordering;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct BvhNode {
-    left: Box<dyn Hittable>,
-    right: Box<dyn Hittable>,
+    left: Arc<dyn Hittable + Send + Sync>,
+    right: Arc<dyn Hittable + Send + Sync>,
     bbox: Aabb,
 }
 
@@ -18,7 +19,11 @@ impl BvhNode {
         Self::from(&list.objects, 0, list.objects.len())
     }
 
-    pub fn from(src_objects: &Vec<Box<dyn Hittable>>, start: usize, end: usize) -> BvhNode {
+    pub fn from(
+        src_objects: &Vec<Arc<dyn Hittable + Send + Sync>>,
+        start: usize,
+        end: usize,
+    ) -> BvhNode {
         let left;
         let right;
         let bbox;
@@ -49,27 +54,42 @@ impl BvhNode {
             _ => {
                 objects.sort_by(comparator);
                 let mid = start + object_span / 2;
-                left = Box::new(BvhNode::from(&objects, start, mid)) as Box<dyn Hittable>;
-                right = Box::new(BvhNode::from(&objects, mid, end)) as Box<dyn Hittable>;
+                left = Arc::new(BvhNode::from(&objects, start, mid))
+                    as Arc<dyn Hittable + Send + Sync>;
+                right =
+                    Arc::new(BvhNode::from(&objects, mid, end)) as Arc<dyn Hittable + Send + Sync>;
             }
         }
 
         bbox = Aabb::from_aabbs(&left.bounding_box(), &right.bounding_box());
         BvhNode { left, right, bbox }
     }
-    pub fn box_compare(a: &Box<dyn Hittable>, b: &Box<dyn Hittable>, axis_index: i64) -> Ordering {
+    pub fn box_compare(
+        a: &Arc<dyn Hittable + Send + Sync>,
+        b: &Arc<dyn Hittable + Send + Sync>,
+        axis_index: i64,
+    ) -> Ordering {
         f64::total_cmp(
             &a.bounding_box().axis(axis_index).min,
             &b.bounding_box().axis(axis_index).min,
         )
     }
-    pub fn box_x_compare(a: &Box<dyn Hittable>, b: &Box<dyn Hittable>) -> Ordering {
+    pub fn box_x_compare(
+        a: &Arc<dyn Hittable + Send + Sync>,
+        b: &Arc<dyn Hittable + Send + Sync>,
+    ) -> Ordering {
         Self::box_compare(a, b, 0)
     }
-    pub fn box_y_compare(a: &Box<dyn Hittable>, b: &Box<dyn Hittable>) -> Ordering {
+    pub fn box_y_compare(
+        a: &Arc<dyn Hittable + Send + Sync>,
+        b: &Arc<dyn Hittable + Send + Sync>,
+    ) -> Ordering {
         Self::box_compare(a, b, 1)
     }
-    pub fn box_z_compare(a: &Box<dyn Hittable>, b: &Box<dyn Hittable>) -> Ordering {
+    pub fn box_z_compare(
+        a: &Arc<dyn Hittable + Send + Sync>,
+        b: &Arc<dyn Hittable + Send + Sync>,
+    ) -> Ordering {
         Self::box_compare(a, b, 2)
     }
 }

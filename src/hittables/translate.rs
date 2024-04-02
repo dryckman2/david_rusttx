@@ -3,16 +3,17 @@ use crate::math_structures::aabb::Aabb;
 use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::Vec3;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct Translate {
-    object: Box<dyn Hittable>,
+    object: Arc<dyn Hittable + Send + Sync>,
     offset: Vec3,
     bbox: Aabb,
 }
 
 impl Translate {
-    pub fn from(p: Box<dyn Hittable>, displacement: Vec3) -> Translate {
+    pub fn from(p: Arc<dyn Hittable + Send + Sync>, displacement: Vec3) -> Translate {
         let mut this = Translate {
             object: p,
             offset: displacement,

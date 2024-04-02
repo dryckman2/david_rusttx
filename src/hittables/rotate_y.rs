@@ -4,16 +4,17 @@ use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::{Point3, Vec3};
 use crate::rtweekend::{degrees_to_radians, INFINITY};
+use std::sync::Arc;
 
 pub struct RotateY {
-    object: Box<dyn Hittable>,
+    object: Arc<dyn Hittable + Send + Sync>,
     sin_theta: f64,
     cos_theta: f64,
     bbox: Aabb,
 }
 
 impl RotateY {
-    pub fn from(p: Box<dyn Hittable>, angle: f64) -> RotateY {
+    pub fn from(p: Arc<dyn Hittable + Send + Sync>, angle: f64) -> RotateY {
         let mut this = RotateY {
             object: p,
             sin_theta: 0.0,

@@ -1,16 +1,18 @@
-use crate::hittables::hittable::{HitRecord, Hittable};
+use crate::hittables::hittable::Hittable;
 use crate::hittables::hittable_list::HittableList;
 use crate::materials::material::Material;
 use crate::math_structures::color::foo::fmt_to_file;
-use crate::math_structures::color::{write_color, Color};
+use crate::math_structures::color::{write_color, write_color_string, Color};
 use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::{random_in_unit_disk, Point3, Vec3};
 use crate::rtweekend::{degrees_to_radians, random_double, INFINITY};
 use std::fs::File;
-use std::io;
 use std::io::Write;
+use std::sync::Arc;
+use std::{io, thread};
 
+#[derive(Clone)]
 pub struct Camera {
     pub image_width: i64,
     pub image_height: i64,
@@ -63,6 +65,15 @@ impl Camera {
             }
         }
         println!("\rDone.                        \n");
+    }
+
+    pub fn multi_threaded_render(&self, mut out_file: &mut File, world: &HittableList) {
+        let c = Arc::new((*self).clone());
+        let w = Arc::from((*world).clone());
+        let x = render_to_memory(c, w, 8);
+        for y in x {
+            out_file.write(y.as_bytes()).expect("TODO: panic message");
+        }
     }
 
     pub fn initialize(
@@ -193,4 +204,74 @@ impl Camera {
 
         &color_from_emission + &color_from_scatter
     }
+}
+
+pub fn render_to_memory(
+    camera: Arc<Camera>,
+    world: Arc<HittableList>,
+    num_threads: usize,
+) -> Vec<String> {
+    let even_load = camera.image_height / num_threads as i64;
+    let mut handles = vec![];
+    for i in 0..num_threads {
+        let start = i * even_load as usize;
+        let end = (i + 1) * even_load as usize;
+        let threads_cam = Arc::clone(&camera);
+        let threads_world = Arc::clone(&world);
+        handles.push(thread::spawn(move || {
+            thread_render(i as i64, threads_cam, threads_world, start, end)
+        }));
+    }
+
+    // If a rounding error occurs, fill in the gap with an extra thread
+    if ((num_threads) * even_load as usize) != camera.image_height as usize {
+        let start = (num_threads) * even_load as usize;
+        let end = camera.image_height as usize;
+        let threads_cam = Arc::clone(&camera);
+        let threads_world = Arc::clone(&world);
+        handles.push(thread::spawn(move || {
+            thread_render(-1, threads_cam, threads_world, start, end)
+        }));
+    }
+
+    let mut results = Vec::with_capacity((camera.image_height * camera.image_width) as usize + 1);
+    // Render
+    results.push(format!(
+        "P3\n{} {}\n255\n",
+        camera.image_width, camera.image_height
+    ));
+
+    for h in handles {
+        let x = h.join().unwrap();
+        for y in x {
+            results.push(y);
+        }
+    }
+
+    println!("\rDone.                        \n");
+    results
+}
+
+fn thread_render(
+    thread_num: i64,
+    cam: Arc<Camera>,
+    world: Arc<HittableList>,
+    start: usize,
+    end: usize,
+) -> Vec<String> {
+    let mut res = Vec::with_capacity(end - start);
+    for j in start..end {
+        println!("Thread {thread_num} running with {} remaining...", end - j);
+        for i in 0..cam.image_width {
+            let mut pixel_color = Color::blank();
+            for _ in 0..cam.samples_per_pixel {
+                let r = cam.get_ray(i, j as i64);
+                pixel_color += &cam.ray_color(&r, cam.max_depth, &world);
+            }
+
+            let s = write_color_string(&pixel_color, cam.samples_per_pixel);
+            res.push(s)
+        }
+    }
+    res
 }

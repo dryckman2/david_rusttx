@@ -21,6 +21,11 @@ pub(crate) mod foo {
 }
 
 pub fn write_color(out_file: &mut File, pixel_color: &Color, samples_per_pixel: i64) {
+    let s = write_color_string(pixel_color, samples_per_pixel);
+    fmt_to_file!(&mut out_file, "{}", s);
+}
+
+pub fn write_color_string(pixel_color: &Color, samples_per_pixel: i64) -> String {
     let mut r = pixel_color.x();
     let mut g = pixel_color.y();
     let mut b = pixel_color.z();
@@ -38,11 +43,11 @@ pub fn write_color(out_file: &mut File, pixel_color: &Color, samples_per_pixel: 
 
     // Write the translated [0,255] value of each color component.
     let intensity = Interval::from(0.000, 0.999);
-    fmt_to_file!(
-        &mut out_file,
+    let s = format!(
         "{} {} {}\n",
         (256.0 * intensity.clamp(r)) as i64,
         (256.0 * intensity.clamp(g)) as i64,
         (256.0 * intensity.clamp(b)) as i64
     );
+    s
 }

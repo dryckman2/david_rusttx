@@ -1,4 +1,3 @@
-use std::ops::Deref;
 use crate::hittables::hittable::{HitRecord, Hittable};
 use crate::hittables::hittable_list::HittableList;
 use crate::materials::lambertian::Lambertian;
@@ -9,14 +8,16 @@ use crate::math_structures::color::Color;
 use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::{Point3, Vec3};
+use std::ops::Deref;
 use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct Quad {
     q: Point3,
     u: Vec3,
     v: Vec3,
-    mat: Rc<MatEnum>,
+    mat: Arc<MatEnum>,
     bbox: Aabb,
     normal: Vec3,
     d: f64,
@@ -24,7 +25,7 @@ pub struct Quad {
 }
 
 impl Quad {
-    pub fn from(q: Point3, u: Vec3, v: Vec3, mat: Rc<MatEnum>) -> Quad {
+    pub fn from(q: Point3, u: Vec3, v: Vec3, mat: Arc<MatEnum>) -> Quad {
         let mut this = Quad {
             q,
             u,
@@ -44,7 +45,7 @@ impl Quad {
         this
     }
 
-    pub fn make_box(a: &Point3, b: &Point3, mat: Rc<MatEnum>) -> Box<HittableList> {
+    pub fn make_box(a: &Point3, b: &Point3, mat: Arc<MatEnum>) -> Arc<HittableList> {
         // Returns the 3D box (six sides) that contains the two opposite vertices a & b.
         let mut sides = HittableList::blank();
 
@@ -64,44 +65,44 @@ impl Quad {
         let dy = Vec3::from(0.0, max.y() - min.y(), 0.0);
         let dz = Vec3::from(0.0, 0.0, max.z() - min.z());
 
-        sides.add(Box::new(Quad::from(
+        sides.add(Arc::new(Quad::from(
             Point3::from(min.x(), min.y(), max.z()),
             dx,
             dy,
             mat.clone(),
         ))); // front
-        sides.add(Box::new(Quad::from(
+        sides.add(Arc::new(Quad::from(
             Point3::from(max.x(), min.y(), max.z()),
             -&dz,
             dy,
             mat.clone(),
         ))); // right
-        sides.add(Box::new(Quad::from(
+        sides.add(Arc::new(Quad::from(
             Point3::from(max.x(), min.y(), min.z()),
             -&dx,
             dy,
             mat.clone(),
         ))); // back
-        sides.add(Box::new(Quad::from(
+        sides.add(Arc::new(Quad::from(
             Point3::from(min.x(), min.y(), min.z()),
             dz,
             dy,
             mat.clone(),
         ))); // left
-        sides.add(Box::new(Quad::from(
+        sides.add(Arc::new(Quad::from(
             Point3::from(min.x(), max.y(), max.z()),
             dx,
             -&dz,
             mat.clone(),
         ))); // top
-        sides.add(Box::new(Quad::from(
+        sides.add(Arc::new(Quad::from(
             Point3::from(min.x(), min.y(), min.z()),
             dx,
             dz,
             mat.clone(),
         ))); // bottom
 
-        Box::new(sides)
+        Arc::new(sides)
     }
 
     pub fn set_bounding_box(&mut self) {
