@@ -65,9 +65,11 @@ pub fn thread_render(
     let mut s = String::new();
     for i in 0..cam.image_width {
         let mut pixel_color = Color::blank();
-        for _ in 0..cam.samples_per_pixel {
-            let r = cam.get_ray(i, j as i64);
-            pixel_color += &cam.ray_color(&r, cam.max_depth, &world);
+        for s_j in 0..(cam.sqrt_spp as i64) {
+            for s_i in 0..(cam.sqrt_spp as i64) {
+                let r = cam.get_ray(i, j, s_i, s_j);
+                pixel_color += &cam.ray_color(&r, cam.max_depth, &world);
+            }
         }
 
         s += &*write_color_string(&pixel_color, cam.samples_per_pixel);

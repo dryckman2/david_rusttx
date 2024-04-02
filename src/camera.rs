@@ -39,6 +39,8 @@ pub struct Camera {
 
     // Scene background color
     background: Color,
+    pub(crate) sqrt_spp: f64,
+    recip_sqrt_spp: f64,
 }
 
 impl Camera {
@@ -61,8 +63,12 @@ impl Camera {
             for i in 0..self.image_width {
                 let mut pixel_color = Color::blank();
                 for _ in 0..self.samples_per_pixel {
-                    let r = self.get_ray(i, j);
-                    pixel_color += &self.ray_color(&r, self.max_depth, &world);
+                    for  s_j in 0..self.sqrt_spp as i64 {
+                        for s_i in 0..self.sqrt_spp as i64{
+                            let r = self.get_ray(i, j, s_i, s_j);
+                            pixel_color += &self.ray_color(&r, self.max_depth, world);
+                        }
+                    }
                 }
                 write_color(&mut out_file, &pixel_color, self.samples_per_pixel);
             }
@@ -126,6 +132,9 @@ impl Camera {
         let defocus_disk_u = &u * defocus_radius;
         let defocus_disk_v = &v * defocus_radius;
 
+        let sqrt_spp = (samples_per_pixel as f64).sqrt();
+        let recip_sqrt_spp = 1.0 / sqrt_spp;
+
         Camera {
             image_width,
             image_height,
@@ -139,16 +148,18 @@ impl Camera {
             defocus_disk_u,
             defocus_disk_v,
             background,
+            sqrt_spp,
+            recip_sqrt_spp,
         }
     }
-
-    pub(crate) fn get_ray(&self, i: i64, j: i64) -> Ray {
+    //    ray get_ray(int i, int j, int s_i, int s_j) const {
+    pub(crate) fn get_ray(&self, i: i64, j: i64, s_i: i64, s_j: i64) -> Ray {
         // Get a randomly-sampled camera ray for the pixel at location i,j, originating from
         // the camera defocus disk.
 
         let pixel_center = &self.pixel00_loc
             + &(&(&self.pixel_delta_u * i as f64) + &(&self.pixel_delta_v * j as f64));
-        let pixel_sample = &pixel_center + &self.pixel_sample_square();
+        let pixel_sample = &pixel_center + &self.pixel_sample_square(s_i, s_j);
 
         let ray_origin = if self.defocus_angle <= 0.0 {
             self.center.clone()
@@ -166,11 +177,11 @@ impl Camera {
         let p = random_in_unit_disk();
         &(&self.center + &(p[0] * &self.defocus_disk_u)) + &(p[1] * &self.defocus_disk_v)
     }
-
-    fn pixel_sample_square(&self) -> Vec3 {
-        // Returns a random point in the square surrounding a pixel at the origin.
-        let px = -0.5 + random_double();
-        let py = -0.5 + random_double();
+    fn pixel_sample_square(&self, s_i: i64, s_j: i64) -> Vec3 {
+        // Returns a random point in the square surrounding a pixel at the origin, given
+        // the two subpixel indices.
+        let px = -0.5 + self.recip_sqrt_spp * (s_i as f64 + random_double());
+        let py = -0.5 + self.recip_sqrt_spp * (s_j as f64 + random_double());
         &(px * &self.pixel_delta_u) + &(py * &self.pixel_delta_v)
     }
 
