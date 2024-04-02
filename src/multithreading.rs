@@ -4,6 +4,7 @@ use crate::math_structures::color::{write_color_string, Color};
 use indicatif::ProgressBar;
 use std::sync::Arc;
 use std::thread;
+use std::time::{Instant};
 
 pub fn render_to_memory(
     camera: Arc<Camera>,
@@ -14,8 +15,9 @@ pub fn render_to_memory(
     let mut handles = vec![];
 
     let bar = Arc::new(ProgressBar::new(
-        (camera.image_height * camera.image_width) as u64,
+        camera.image_height as u64,
     ));
+    let start_time = Instant::now();
 
     for i in 0..num_threads {
         let start = i * even_load as usize;
@@ -53,9 +55,10 @@ pub fn render_to_memory(
             results.push(y);
         }
     }
-    bar.finish();
 
-    println!("Done!");
+    let time_took = start_time.elapsed();
+    bar.finish();
+    println!("Done! Took {:?}", time_took);
     results
 }
 
@@ -74,11 +77,11 @@ pub fn thread_render(
                 let r = cam.get_ray(i, j as i64);
                 pixel_color += &cam.ray_color(&r, cam.max_depth, &world);
             }
-            progress.inc(1);
 
             let s = write_color_string(&pixel_color, cam.samples_per_pixel);
             res.push(s)
         }
+        progress.inc(1);
     }
     res
 }
