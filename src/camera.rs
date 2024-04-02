@@ -73,7 +73,7 @@ impl Camera {
     pub fn multi_threaded_render(&self, out_file: &mut File, world: &HittableList) {
         let c = Arc::new((*self).clone());
         let w = Arc::from((*world).clone());
-        let x = render_to_memory(c, w, 8);
+        let x = render_to_memory(c, w);
         for y in x {
             out_file.write(y.as_bytes()).expect("TODO: panic message");
         }

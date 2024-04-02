@@ -3,85 +3,73 @@ use crate::hittables::hittable_list::HittableList;
 use crate::math_structures::color::{write_color_string, Color};
 use indicatif::ProgressBar;
 use std::sync::Arc;
-use std::thread;
+use std::sync::mpsc::channel;
 use std::time::{Instant};
+use threadpool::ThreadPool;
+
+pub const NUM_OF_THREADS: usize = 3;
 
 pub fn render_to_memory(
     camera: Arc<Camera>,
     world: Arc<HittableList>,
-    num_threads: usize,
 ) -> Vec<String> {
-    let even_load = camera.image_height / num_threads as i64;
-    let mut handles = vec![];
-
     let bar = Arc::new(ProgressBar::new(
         camera.image_height as u64,
     ));
     let start_time = Instant::now();
 
-    for i in 0..num_threads {
-        let start = i * even_load as usize;
-        let end = (i + 1) * even_load as usize;
+    let pool = ThreadPool::new(NUM_OF_THREADS);
+
+    let (tx, rx) = channel();
+
+    for i in 0..camera.image_height {
         let threads_cam = Arc::clone(&camera);
         let threads_world = Arc::clone(&world);
         let progress = Arc::clone(&bar);
-        handles.push(thread::spawn(move || {
-            thread_render(threads_cam, threads_world, start, end, progress)
-        }));
+        let thread_tx = tx.clone();
+
+        pool.execute(move || {
+            thread_tx.send(thread_render(threads_cam, threads_world, i, progress)).unwrap();
+        });
     }
 
-    // If a rounding error occurs, fill in the gap with an extra thread
-    if ((num_threads) * even_load as usize) != camera.image_height as usize {
-        let start = (num_threads) * even_load as usize;
-        let end = camera.image_height as usize;
-        let threads_cam = Arc::clone(&camera);
-        let threads_world = Arc::clone(&world);
-        let progress = Arc::clone(&bar);
+    let mut results = Vec::with_capacity(camera.image_height as usize + 1);
+    rx.iter().take(camera.image_height as usize).for_each(|n| { results.push(n); });
 
-        handles.push(thread::spawn(move || {
-            thread_render(threads_cam, threads_world, start, end, progress)
-        }));
-    }
-    let mut results = Vec::with_capacity((camera.image_height * camera.image_width) as usize + 1);
     // Render
-    results.push(format!(
+    results.push((-1, format!(
         "P3\n{} {}\n255\n",
-        camera.image_width, camera.image_height
+        camera.image_width, camera.image_height)
     ));
 
-    for h in handles {
-        let x = h.join().unwrap();
-        for y in x {
-            results.push(y);
-        }
-    }
+    //Double Check All Jobs are finished; should be unnecessary
+    pool.join();
+
+    results.sort_by(|a, b| { a.0.cmp(&b.0) });
 
     let time_took = start_time.elapsed();
     bar.finish();
     println!("Done! Took {:?}", time_took);
-    results
+    results.iter().map(|n| n.1.clone()).collect()
 }
 
 pub fn thread_render(
     cam: Arc<Camera>,
     world: Arc<HittableList>,
-    start: usize,
-    end: usize,
+    row_num: i64,
     progress: Arc<ProgressBar>,
-) -> Vec<String> {
-    let mut res = Vec::with_capacity(end - start);
-    for j in start..end {
-        for i in 0..cam.image_width {
-            let mut pixel_color = Color::blank();
-            for _ in 0..cam.samples_per_pixel {
-                let r = cam.get_ray(i, j as i64);
-                pixel_color += &cam.ray_color(&r, cam.max_depth, &world);
-            }
-
-            let s = write_color_string(&pixel_color, cam.samples_per_pixel);
-            res.push(s)
+) -> (i64, String) {
+    let j = row_num;
+    let mut s = String::new();
+    for i in 0..cam.image_width {
+        let mut pixel_color = Color::blank();
+        for _ in 0..cam.samples_per_pixel {
+            let r = cam.get_ray(i, j as i64);
+            pixel_color += &cam.ray_color(&r, cam.max_depth, &world);
         }
-        progress.inc(1);
+
+        s += &*write_color_string(&pixel_color, cam.samples_per_pixel);
     }
-    res
+    progress.inc(1);
+    (j, s)
 }
