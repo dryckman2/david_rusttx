@@ -8,7 +8,7 @@ use enum_dispatch::enum_dispatch;
 pub trait Material: Clone {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)>;
 
-    fn emitted(&self, u: f64, v: f64, p: &Point3) -> Color {
+    fn emitted(&self, _u: f64, _v: f64, _p: &Point3) -> Color {
         return Color::from(0.0, 0.0, 0.0);
     }
 }

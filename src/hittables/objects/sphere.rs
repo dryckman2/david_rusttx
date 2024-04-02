@@ -1,14 +1,13 @@
+use std::ops::Deref;
+use std::sync::Arc;
+
 use crate::hittables::hittable::{HitRecord, Hittable};
-use crate::materials::material::Material;
 use crate::materials::MatEnum;
 use crate::math_structures::aabb::Aabb;
 use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::{Point3, Vec3};
 use crate::rtweekend::PI;
-use std::ops::Deref;
-use std::rc::Rc;
-use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct Sphere {

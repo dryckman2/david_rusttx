@@ -1,5 +1,5 @@
 use crate::math_structures::color::Color;
-use crate::math_structures::vec3::{Point3, Vec3};
+use crate::math_structures::vec3::Point3;
 use crate::textures::solid_color::SolidColor;
 use crate::textures::texture::Texture;
 use crate::textures::TexEnum;

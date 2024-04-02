@@ -3,7 +3,7 @@ use crate::materials::material::Material;
 use crate::math_structures::color::Color;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::reflect;
-use crate::math_structures::vec3::{Point3, Vec3};
+use crate::math_structures::vec3::Vec3;
 
 #[derive(Clone)]
 pub struct Metal {

@@ -8,6 +8,8 @@ mod scenes;
 mod textures;
 mod volume;
 
+mod multithreading;
+
 use std::thread::Builder;
 
 use crate::camera::Camera;
@@ -22,7 +24,7 @@ use std::sync::Arc;
 fn uncapped_main() {
     let cam: Arc<Camera>;
     let world: Arc<HittableList>;
-    match 10 {
+    match 2 {
         1 => {
             (cam, world) = random_spheres_scene();
         }

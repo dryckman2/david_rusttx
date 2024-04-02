@@ -1,10 +1,8 @@
-use crate::materials::material::Material;
 use crate::materials::MatEnum;
 use crate::math_structures::aabb::Aabb;
 use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::{Point3, Vec3};
-use std::rc::Rc;
 
 pub struct HitRecord {
     pub p: Point3,

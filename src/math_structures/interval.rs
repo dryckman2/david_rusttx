@@ -1,5 +1,4 @@
 use crate::rtweekend::INFINITY;
-use std::mem::discriminant;
 use std::ops::Add;
 
 pub const UNIVERSE: Interval = Interval {

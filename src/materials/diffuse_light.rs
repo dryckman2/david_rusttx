@@ -1,5 +1,4 @@
 use crate::hittables::hittable::HitRecord;
-use crate::materials::lambertian::Lambertian;
 use crate::materials::material::Material;
 use crate::math_structures::color::Color;
 use crate::math_structures::ray::Ray;
@@ -25,7 +24,7 @@ impl DiffuseLight {
 }
 
 impl Material for DiffuseLight {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
+    fn scatter(&self, _r_in: &Ray, _rec: &HitRecord) -> Option<(Color, Ray)> {
         None
     }
     fn emitted(&self, u: f64, v: f64, p: &Point3) -> Color {

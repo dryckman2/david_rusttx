@@ -1,6 +1,6 @@
 use crate::math_structures::color::Color;
 use crate::math_structures::interval::Interval;
-use crate::math_structures::vec3::{Point3, Vec3};
+use crate::math_structures::vec3::Point3;
 use crate::rtw_image::RtwImage;
 use crate::textures::texture::Texture;
 

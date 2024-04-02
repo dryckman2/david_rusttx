@@ -7,12 +7,6 @@ pub struct RtwImage {
 }
 
 impl RtwImage {
-    pub fn blank() -> RtwImage {
-        RtwImage {
-            img: Default::default(),
-        }
-    }
-
     pub fn from_image(image_filename: &str) -> RtwImage {
         let full_file_name = "./images/".to_string() + image_filename;
         match { load(full_file_name) } {

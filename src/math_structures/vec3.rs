@@ -34,7 +34,7 @@ impl Vec3 {
         return self.e[0] * self.e[0] + self.e[1] * self.e[1] + self.e[2] * self.e[2];
     }
     pub fn length(&self) -> f64 {
-        return (self.length_squared()).sqrt();
+        return self.length_squared().sqrt();
     }
 
     // Vector Utility Functions
@@ -97,7 +97,7 @@ impl Vec3 {
     pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f64) -> Vec3 {
         let cos_theta = f64::min(Vec3::dot(&-uv, n), 1.0);
         let r_out_perp = etai_over_etat * &(uv + &(cos_theta * n));
-        let r_out_parallel = -(f64::abs(1.0 - r_out_perp.length_squared())).sqrt() * n;
+        let r_out_parallel = -f64::abs(1.0 - r_out_perp.length_squared()).sqrt() * n;
         return &r_out_perp + &r_out_parallel;
     }
 }

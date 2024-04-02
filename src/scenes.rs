@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::camera::Camera;
 use crate::hittables::hittable::Hittable;
 use crate::hittables::hittable_list::HittableList;
@@ -19,8 +21,6 @@ use crate::textures::image_texture::ImageTexture;
 use crate::textures::noise_texture::NoiseTexture;
 use crate::textures::TexEnum;
 use crate::volume::constant_medium::ConstantMedium;
-use std::rc::Rc;
-use std::sync::Arc;
 
 pub fn quads_scene() -> (Arc<Camera>, Arc<HittableList>) {
     let mut world = HittableList::blank();
@@ -190,7 +190,7 @@ pub fn random_spheres_scene() -> (Arc<Camera>, Arc<HittableList>) {
                 } else {
                     // glass
                     let sphere_material = Arc::new(MatEnum::Dielectric(Dielectric::from(1.5)));
-                    world.add(Arc::new(Sphere::from(center, 0.2, (sphere_material))));
+                    world.add(Arc::new(Sphere::from(center, 0.2, sphere_material)));
                 }
             }
         }

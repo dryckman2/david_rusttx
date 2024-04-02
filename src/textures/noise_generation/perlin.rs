@@ -1,5 +1,5 @@
 use crate::math_structures::vec3::{Point3, Vec3};
-use crate::rtweekend::{random_double, random_int_bounded};
+use crate::rtweekend::random_int_bounded;
 
 const POINT_COUNT: usize = 256;
 
