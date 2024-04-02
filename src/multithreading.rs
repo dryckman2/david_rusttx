@@ -5,6 +5,7 @@ use indicatif::ProgressBar;
 use std::sync::Arc;
 use std::sync::mpsc::channel;
 use std::time::{Instant};
+use sorted_vec::SortedVec;
 use threadpool::ThreadPool;
 
 pub const NUM_OF_THREADS: usize = 3;
@@ -33,7 +34,8 @@ pub fn render_to_memory(
         });
     }
 
-    let mut results = Vec::with_capacity(camera.image_height as usize + 1);
+    // let mut results = Vec::with_capacity(camera.image_height as usize + 1);
+    let mut results = SortedVec::with_capacity(camera.image_height as usize + 1);
     rx.iter().take(camera.image_height as usize).for_each(|n| { results.push(n); });
 
     // Render
@@ -45,7 +47,7 @@ pub fn render_to_memory(
     //Double Check All Jobs are finished; should be unnecessary
     pool.join();
 
-    results.sort_by(|a, b| { a.0.cmp(&b.0) });
+    // results.sort_by(|a, b| { a.0.cmp(&b.0) });
 
     let time_took = start_time.elapsed();
     bar.finish();

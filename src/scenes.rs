@@ -224,7 +224,7 @@ pub fn random_spheres_scene() -> (Arc<Camera>, Arc<HittableList>) {
 
     //Camera Variables
     let aspect_ratio = 16.0 / 9.0;
-    let image_width = 720;
+    let image_width = 1920;
     let samples_per_pixel = 100;
     let max_depth = 50;
     let vfov = 20.0;

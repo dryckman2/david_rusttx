@@ -24,7 +24,7 @@ use std::sync::Arc;
 fn uncapped_main() {
     let cam: Arc<Camera>;
     let world: Arc<HittableList>;
-    match 2 {
+    match 7 {
         1 => {
             (cam, world) = random_spheres_scene();
         }
