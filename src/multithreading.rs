@@ -8,7 +8,7 @@ use std::time::{Instant};
 use sorted_vec::SortedVec;
 use threadpool::ThreadPool;
 
-pub const NUM_OF_THREADS: usize = 3;
+pub const NUM_OF_ACTIVE_THREADS: usize = 3;
 
 pub fn render_to_memory(
     camera: Arc<Camera>,
@@ -19,7 +19,7 @@ pub fn render_to_memory(
     ));
     let start_time = Instant::now();
 
-    let pool = ThreadPool::new(NUM_OF_THREADS);
+    let pool = ThreadPool::new(NUM_OF_ACTIVE_THREADS);
 
     let (tx, rx) = channel();
 

@@ -480,7 +480,7 @@ pub fn cornell_box_scene() -> (Arc<Camera>, Arc<HittableList>) {
 
     let aspect_ratio = 1.0;
     let image_width = 600;
-    let samples_per_pixel = 200;
+    let samples_per_pixel = 100;
     let max_depth = 50;
     let background = Color::from(0.0, 0.0, 0.0);
 
