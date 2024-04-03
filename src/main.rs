@@ -27,7 +27,7 @@ use std::fs::File;
 use std::io::Write;
 
 pub const NUM_OF_ACTIVE_THREADS: usize = 2;
-pub const IMAGE_WIDTH: i64 = 400;
+pub const IMAGE_WIDTH: i64 = 600;
 pub const SAMPLE_PP: i64 = 100;
 pub const MAX_DEPTH: i64 = 50;
 

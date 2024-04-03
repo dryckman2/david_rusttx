@@ -30,6 +30,11 @@ pub fn write_color_string(pixel_color: &Color, samples_per_pixel: i64) -> String
     let mut g = pixel_color.y();
     let mut b = pixel_color.z();
 
+    // Replace NaN components with zero.
+    if f64::is_nan(r) { r = 0.0 };
+    if f64::is_nan(g) { g = 0.0 };
+    if f64::is_nan(b) { b = 0.0 };
+
     // Divide the color by the number of samples.
     let scale = 1.0 / samples_per_pixel as f64;
     r *= scale;
