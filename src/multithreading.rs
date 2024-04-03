@@ -1,17 +1,21 @@
 use crate::camera::Camera;
 use crate::hittables::hittable_list::HittableList;
 use crate::math_structures::color::{write_color_string, Color};
+use crate::NUM_OF_ACTIVE_THREADS;
 use indicatif::ProgressBar;
 use sorted_vec::SortedVec;
 use std::io::Write;
+use std::ops::Deref;
 use std::sync::mpsc::channel;
 use std::sync::Arc;
 use std::time::Instant;
 use threadpool::ThreadPool;
 
-pub const NUM_OF_ACTIVE_THREADS: usize = 12;
-
-pub fn render_to_memory(camera: Arc<Camera>, world: Arc<HittableList>) -> Vec<String> {
+pub fn render_to_memory(
+    camera: Arc<Camera>,
+    world: Arc<HittableList>,
+    lights: Arc<HittableList>,
+) -> Vec<String> {
     let start_time = Instant::now();
 
     let pool = ThreadPool::new(NUM_OF_ACTIVE_THREADS);
@@ -24,14 +28,21 @@ pub fn render_to_memory(camera: Arc<Camera>, world: Arc<HittableList>) -> Vec<St
     std::io::stdout().flush().unwrap();
 
     for i in 0..camera.image_height {
-        let threads_cam = Arc::clone(&camera);
-        let threads_world = Arc::clone(&world);
+        let threads_cam = camera.deref().clone();
+        let threads_world = world.deref().clone();
+        let threads_lights = lights.deref().clone();
         let progress = Arc::clone(&bar);
         let thread_tx = tx.clone();
 
         pool.execute(move || {
             thread_tx
-                .send(thread_render(threads_cam, threads_world, i, progress))
+                .send(thread_render(
+                    threads_cam,
+                    threads_world,
+                    threads_lights,
+                    i,
+                    progress,
+                ))
                 .unwrap();
         });
     }
@@ -60,8 +71,9 @@ pub fn render_to_memory(camera: Arc<Camera>, world: Arc<HittableList>) -> Vec<St
 }
 
 pub fn thread_render(
-    cam: Arc<Camera>,
-    world: Arc<HittableList>,
+    cam: Camera,
+    world: HittableList,
+    lights: HittableList,
     row_num: i64,
     progress: Arc<ProgressBar>,
 ) -> (i64, String) {
@@ -72,7 +84,7 @@ pub fn thread_render(
         for s_j in 0..(cam.sqrt_spp as i64) {
             for s_i in 0..(cam.sqrt_spp as i64) {
                 let r = cam.get_ray(i, j, s_i, s_j);
-                pixel_color += &cam.ray_color(&r, cam.max_depth, &world);
+                pixel_color += &cam.ray_color(&r, cam.max_depth, &world, &lights);
             }
         }
 

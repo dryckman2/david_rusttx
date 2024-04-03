@@ -2,6 +2,8 @@ use crate::hittables::hittable::{HitRecord, Hittable};
 use crate::math_structures::aabb::Aabb;
 use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
+use crate::math_structures::vec3::{Point3, Vec3};
+use crate::rtweekend::random_int_bounded;
 use std::sync::Arc;
 
 pub struct HittableList {
@@ -45,8 +47,26 @@ impl Hittable for HittableList {
         self.bbox.clone()
     }
 
-    fn clone_dyn(&self) -> Box<dyn Hittable> {
+    fn clone_dyn(&self) -> Box<dyn Hittable + Send + Sync> {
         Box::from((*self).clone())
+    }
+
+    fn pdf_value(&self, o: &Point3, v: &Vec3) -> f64 {
+        let weight = 1.0 / self.objects.len() as f64;
+        let mut sum = 0.0;
+
+        for object in &self.objects {
+            sum += weight * object.pdf_value(o, v);
+        }
+        return sum;
+    }
+
+    fn random(&self, o: &Vec3) -> Vec3 {
+        if self.objects.len() == 0 {
+            return Vec3::blank();
+        }
+        let int_size = self.objects.len() as i64;
+        return self.objects[random_int_bounded(0, int_size - 1) as usize].random(o);
     }
 }
 

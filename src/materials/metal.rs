@@ -1,5 +1,5 @@
 use crate::hittables::hittable::HitRecord;
-use crate::materials::material::Material;
+use crate::materials::material::{Material, ScatterRecord};
 use crate::math_structures::color::Color;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::reflect;
@@ -19,18 +19,16 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord,pdf:f64) -> Option<(Color, Ray,f64)> {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<ScatterRecord> {
+        let mut srec = ScatterRecord::blank();
+        srec.attenuation = self.albedo;
+        srec.skip_pdf = true;
         let reflected = reflect(&Vec3::unit_vector(r_in.direction()), &rec.normal);
-        let scattered = Ray::from_set_time(
+        srec.skip_pdf_ray = Ray::from_set_time(
             rec.p,
-            &reflected + &(self.fuzz * &Vec3::random_unit_vector()),
+            &reflected + &(self.fuzz * &Vec3::random_in_unit_sphere()),
             r_in.time(),
         );
-        let attenuation = self.albedo;
-        return if Vec3::dot(&scattered.direction(), &rec.normal) > 0.0 {
-            Some((attenuation, scattered,pdf))
-        } else {
-            None
-        };
+        Some(srec)
     }
 }

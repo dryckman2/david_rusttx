@@ -3,7 +3,7 @@ use crate::rtweekend::{random_double, random_double_bounded, PI};
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Vec3 {
     pub(crate) e: [f64; 3],
 }

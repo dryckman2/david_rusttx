@@ -5,9 +5,10 @@ use crate::hittables::hittable::{HitRecord, Hittable};
 use crate::materials::MatEnum;
 use crate::math_structures::aabb::Aabb;
 use crate::math_structures::interval::Interval;
+use crate::math_structures::onb::Onb;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::{Point3, Vec3};
-use crate::rtweekend::PI;
+use crate::rtweekend::{random_double, INFINITY, PI};
 
 #[derive(Clone)]
 pub struct Sphere {
@@ -72,6 +73,18 @@ impl Sphere {
     }
 }
 
+pub fn random_to_sphere(radius: f64, distance_squared: f64) -> Vec3 {
+    let r1 = random_double();
+    let r2 = random_double();
+    let z = 1.0 + r2 * (f64::sqrt(1.0 - radius * radius / distance_squared) - 1.0);
+
+    let phi = 2.0 * PI * r1;
+    let x = f64::cos(phi) * f64::sqrt(1.0 - z * z);
+    let y = f64::sin(phi) * f64::sqrt(1.0 - z * z);
+
+    Vec3::from(x, y, z)
+}
+
 impl Hittable for Sphere {
     fn hit(&self, r: &Ray, ray_t: &Interval) -> Option<HitRecord> {
         let center = if self.is_moving {
@@ -122,7 +135,36 @@ impl Hittable for Sphere {
         self.bbox.clone()
     }
 
-    fn clone_dyn(&self) -> Box<dyn Hittable> {
+    fn clone_dyn(&self) -> Box<dyn Hittable + Send + Sync> {
         Box::from((*self).clone())
+    }
+
+    fn pdf_value(&self, o: &Point3, v: &Vec3) -> f64 {
+        // This method only works for stationary spheres.
+        let rec;
+        match (self.hit(
+            &Ray::from(o.clone(), v.clone()),
+            &Interval::from(0.001, INFINITY),
+        )) {
+            None => {
+                return 0.0;
+            }
+            Some(x) => {
+                rec = x;
+            }
+        }
+        let cos_theta_max =
+            f64::sqrt(1.0 - self.radius * self.radius / (&self.center1 - o).length_squared());
+        let solid_angle = 2.0 * PI * (1.0 - cos_theta_max);
+
+        1.0 / solid_angle
+    }
+
+    fn random(&self, o: &Vec3) -> Vec3 {
+        let direction = &self.center1 - o;
+        let distance_squared = direction.length_squared();
+        let mut uvw = Onb::blank();
+        uvw.build_from_w(&direction);
+        uvw.local_from_vec3(&random_to_sphere(self.radius, distance_squared))
     }
 }

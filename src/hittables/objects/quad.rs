@@ -10,6 +10,7 @@ use crate::math_structures::color::Color;
 use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::{Point3, Vec3};
+use crate::rtweekend::{random_double, INFINITY};
 
 #[derive(Clone)]
 pub struct Quad {
@@ -21,6 +22,7 @@ pub struct Quad {
     normal: Vec3,
     d: f64,
     w: Vec3,
+    area: f64,
 }
 
 impl Quad {
@@ -34,11 +36,14 @@ impl Quad {
             normal: Vec3::blank(),
             d: 0.0,
             w: Vec3::blank(),
+            area: 0.0,
         };
         let n = Vec3::cross(&u, &v);
         this.normal = Vec3::unit_vector(&n);
         this.d = Vec3::dot(&this.normal, &this.q);
         this.w = &n / Vec3::dot(&n, &n);
+
+        this.area = n.length();
 
         this.set_bounding_box();
         this
@@ -179,7 +184,29 @@ impl Hittable for Quad {
         self.bbox.clone()
     }
 
-    fn clone_dyn(&self) -> Box<dyn Hittable> {
+    fn clone_dyn(&self) -> Box<dyn Hittable + Send + Sync> {
         Box::new((*self).clone())
+    }
+
+    fn pdf_value(&self, o: &Point3, v: &Vec3) -> f64 {
+        let rec;
+        match self.hit(&Ray::from(*o, *v), &Interval::from(0.001, INFINITY)) {
+            None => {
+                return 0.0;
+            }
+            Some(x) => {
+                rec = x;
+            }
+        }
+
+        let distance_squared = rec.t * rec.t * v.length_squared();
+        let cosine = f64::abs(Vec3::dot(&v, &rec.normal) / v.length());
+
+        return distance_squared / (cosine * self.area);
+    }
+
+    fn random(&self, o: &Vec3) -> Vec3 {
+        let p = &self.q + &(&(random_double() * &self.u) + &(random_double() * &self.v));
+        return &p - o;
     }
 }

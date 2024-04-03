@@ -7,6 +7,13 @@ pub struct Ray {
 }
 
 impl Ray {
+    pub fn blank() -> Ray {
+        Ray {
+            origin: Vec3::blank(),
+            direction: Vec3::blank(),
+            tm: 0.0,
+        }
+    }
     pub fn from(origin: Point3, direction: Vec3) -> Ray {
         Ray {
             origin,

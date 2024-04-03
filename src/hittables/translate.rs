@@ -48,7 +48,7 @@ impl Hittable for Translate {
         self.bbox.clone()
     }
 
-    fn clone_dyn(&self) -> Box<dyn Hittable> {
+    fn clone_dyn(&self) -> Box<dyn Hittable + Send + Sync> {
         Box::new((*self).clone())
     }
 }

@@ -1,5 +1,5 @@
 use crate::hittables::hittable::HitRecord;
-use crate::materials::material::Material;
+use crate::materials::material::{Material, ScatterRecord};
 use crate::math_structures::color::Color;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::{reflect, Vec3};
@@ -26,7 +26,10 @@ pub fn reflectance(cosine: f64, ref_idx: f64) -> f64 {
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord,pdf:f64) -> Option<(Color, Ray,f64)> {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<ScatterRecord> {
+        let mut srec = ScatterRecord::blank();
+        srec.attenuation = Color::from(1.0, 1.0, 1.0);
+        srec.skip_pdf = true;
         let refraction_ratio = if rec.front_face {
             1.0 / self.ir
         } else {
@@ -46,9 +49,7 @@ impl Material for Dielectric {
             direction = Vec3::refract(&unit_direction, &rec.normal, refraction_ratio);
         }
 
-        Some((
-            Color::from(1.0, 1.0, 1.0),
-            Ray::from_set_time(rec.p, direction, r_in.time()),
-        ))
+        srec.skip_pdf_ray = Ray::from_set_time(rec.p, direction, r_in.time());
+        Some(srec)
     }
 }

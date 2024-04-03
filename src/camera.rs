@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io;
 use std::io::Write;
+use std::process::exit;
 use std::sync::Arc;
 
 use crate::hittables::hittable::Hittable;
@@ -12,6 +13,10 @@ use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::{random_in_unit_disk, Point3, Vec3};
 use crate::multithreading::render_to_memory;
+use crate::pdf::cosine_pdf::CosinePdf;
+use crate::pdf::hittable_pdf::HittablePdf;
+use crate::pdf::mixture_pdf::MixturePdf;
+use crate::pdf::pdf::Pdf;
 use crate::rtweekend::{degrees_to_radians, random_double, INFINITY};
 
 #[derive(Clone)]
@@ -45,7 +50,7 @@ pub struct Camera {
 
 impl Camera {
     #[allow(dead_code)] //Using in single thread render
-    pub fn render(self, mut out_file: &mut File, world: &HittableList) {
+    pub fn render(&self, mut out_file: &mut File, world: &HittableList, lights: &HittableList) {
         // Render
         fmt_to_file!(
             &mut out_file,
@@ -66,7 +71,7 @@ impl Camera {
                     for s_j in 0..self.sqrt_spp as i64 {
                         for s_i in 0..self.sqrt_spp as i64 {
                             let r = self.get_ray(i, j, s_i, s_j);
-                            pixel_color += &self.ray_color(&r, self.max_depth, world);
+                            pixel_color += &self.ray_color(&r, self.max_depth, world, lights);
                         }
                     }
                 }
@@ -76,10 +81,16 @@ impl Camera {
         println!("\rDone.                        \n");
     }
 
-    pub fn multi_threaded_render(&self, out_file: &mut File, world: &HittableList) {
+    pub fn multi_threaded_render(
+        &self,
+        out_file: &mut File,
+        world: &HittableList,
+        lights: &HittableList,
+    ) {
         let c = Arc::new((*self).clone());
         let w = Arc::from((*world).clone());
-        let x = render_to_memory(c, w);
+        let l = Arc::from((*lights).clone());
+        let x = render_to_memory(c, w, l);
         for y in x {
             out_file.write(y.as_bytes()).expect("TODO: panic message");
         }
@@ -185,7 +196,13 @@ impl Camera {
         &(px * &self.pixel_delta_u) + &(py * &self.pixel_delta_v)
     }
 
-    pub fn ray_color(&self, r: &Ray, depth: i64, world: &HittableList) -> Color {
+    pub fn ray_color(
+        &self,
+        r: &Ray,
+        depth: i64,
+        world: &HittableList,
+        lights: &HittableList,
+    ) -> Color {
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if depth <= 0 {
             return Color::from(0.0, 0.0, 0.0);
@@ -202,26 +219,36 @@ impl Camera {
             }
         }
 
-        let scattered;
-        let attenuation;
-        let mut pdf = 0.0;
-        let color_from_emission = rec.mat.emitted(rec.u, rec.v, &rec.p);
-        match rec.mat.scatter(r, &rec,pdf) {
+        let srec;
+        let color_from_emission = rec.mat.emitted(r, &rec, rec.u, rec.v, &rec.p);
+        match rec.mat.scatter(r, &rec) {
             None => {
                 return color_from_emission;
             }
             Some(x) => {
-                attenuation = x.0;
-                scattered = x.1;
-                pdf = x.2;
+                srec = x;
             }
         }
-        //scatter(&self, r_in: &Ray, rec: &HitRecord,pdf:f64)\
-        let scattering_pdf = rec.mat.scattering(r, &rec, scattered,pdf);
-        let pdf = scattering_pdf;
 
-        let color_from_scatter =
-            (&(&attenuation * &scattering_pdf) * &self.ray_color(&scattered, depth - 1, world)) / pdf;
+        if srec.skip_pdf {
+            return &srec.attenuation
+                * &self.ray_color(&srec.skip_pdf_ray, depth - 1, world, lights);
+        }
+
+        let light_ptr = HittablePdf::from(lights.clone(), rec.p);
+        let p = if lights.objects.len() != 0 {
+            Box::new(MixturePdf::from(Box::new(light_ptr), srec.pdf_ptr))
+        } else {
+            srec.pdf_ptr
+        };
+
+        let scattered = Ray::from_set_time(rec.p, p.generate(), r.time());
+        let pdf_val = p.value(scattered.direction());
+
+        let scattering_pdf = rec.mat.scattering_pdf(r, &rec, &scattered);
+
+        let sample_color = self.ray_color(&scattered, depth - 1, world, lights);
+        let color_from_scatter = &(&(&srec.attenuation * scattering_pdf) * &sample_color) / pdf_val;
 
         &color_from_emission + &color_from_scatter
     }

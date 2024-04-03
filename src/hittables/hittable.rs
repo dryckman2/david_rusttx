@@ -32,10 +32,17 @@ pub trait Hittable {
 
     fn bounding_box(&self) -> Aabb;
 
-    fn clone_dyn(&self) -> Box<dyn Hittable>;
+    fn clone_dyn(&self) -> Box<dyn Hittable + Send + Sync>;
+
+    fn pdf_value(&self, o: &Point3, v: &Vec3) -> f64 {
+        0.0
+    }
+    fn random(&self, o: &Vec3) -> Vec3 {
+        Vec3::from(1.0, 0.0, 0.0)
+    }
 }
 
-impl Clone for Box<dyn Hittable> {
+impl Clone for Box<dyn Hittable + Send + Sync> {
     fn clone(&self) -> Self {
         self.clone_dyn()
     }

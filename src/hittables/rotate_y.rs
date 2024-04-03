@@ -96,7 +96,7 @@ impl Hittable for RotateY {
         self.bbox.clone()
     }
 
-    fn clone_dyn(&self) -> Box<dyn Hittable> {
+    fn clone_dyn(&self) -> Box<dyn Hittable + Send + Sync> {
         todo!()
     }
 }
