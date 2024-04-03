@@ -25,9 +25,9 @@ impl Isotropic {
 }
 
 impl Material for Isotropic {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord,pdf:f64) -> Option<(Color, Ray,f64)> {
         let scattered = Ray::from_set_time(rec.p, Vec3::random_unit_vector(), r_in.time());
         let attenuation = self.albedo.value(rec.u, rec.v, &rec.p);
-        Some((attenuation, scattered))
+        Some((attenuation, scattered,pdf))
     }
 }

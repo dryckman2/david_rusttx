@@ -19,12 +19,13 @@ use crate::scenes::{
     random_spheres_scene, simple_list_scene, two_perlin_spheres_scene, two_spheres_scene,
 };
 use std::fs::File;
+use std::io::Write;
 use std::sync::Arc;
 
 fn uncapped_main() {
     let cam: Arc<Camera>;
     let world: Arc<HittableList>;
-    match 7 {
+    match 10 {
         1 => {
             (cam, world) = random_spheres_scene();
         }
@@ -53,7 +54,7 @@ fn uncapped_main() {
             (cam, world) = final_scene(200, 10, 4);
         }
         10 => {
-            (cam, world) = final_scene(800, 10000, 40);
+            (cam, world) = final_scene(800, 1000, 40);
         }
         _ => {
             panic!("Fuck")
@@ -64,6 +65,8 @@ fn uncapped_main() {
 
     //Open Image
     let mut out_file = File::create(output_file).expect("Couldn't Open File!");
+    println!("World Setup Complete!");
+    std::io::stdout().flush().unwrap();
     cam.multi_threaded_render(&mut out_file, &world);
 }
 

@@ -24,7 +24,7 @@ impl DiffuseLight {
 }
 
 impl Material for DiffuseLight {
-    fn scatter(&self, _r_in: &Ray, _rec: &HitRecord) -> Option<(Color, Ray)> {
+    fn scatter(&self, _r_in: &Ray, _rec: &HitRecord,_pdf:f64) -> Option<(Color, Ray,f64)> {
         None
     }
     fn emitted(&self, u: f64, v: f64, p: &Point3) -> Color {

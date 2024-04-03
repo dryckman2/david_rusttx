@@ -63,8 +63,8 @@ impl Camera {
             for i in 0..self.image_width {
                 let mut pixel_color = Color::blank();
                 for _ in 0..self.samples_per_pixel {
-                    for  s_j in 0..self.sqrt_spp as i64 {
-                        for s_i in 0..self.sqrt_spp as i64{
+                    for s_j in 0..self.sqrt_spp as i64 {
+                        for s_i in 0..self.sqrt_spp as i64 {
                             let r = self.get_ray(i, j, s_i, s_j);
                             pixel_color += &self.ray_color(&r, self.max_depth, world);
                         }
@@ -204,17 +204,24 @@ impl Camera {
 
         let scattered;
         let attenuation;
+        let mut pdf = 0.0;
         let color_from_emission = rec.mat.emitted(rec.u, rec.v, &rec.p);
-        match rec.mat.scatter(r, &rec) {
+        match rec.mat.scatter(r, &rec,pdf) {
             None => {
                 return color_from_emission;
             }
             Some(x) => {
                 attenuation = x.0;
                 scattered = x.1;
+                pdf = x.2;
             }
         }
-        let color_from_scatter = &attenuation * &self.ray_color(&scattered, depth - 1, world);
+        //scatter(&self, r_in: &Ray, rec: &HitRecord,pdf:f64)\
+        let scattering_pdf = rec.mat.scattering(r, &rec, scattered,pdf);
+        let pdf = scattering_pdf;
+
+        let color_from_scatter =
+            (&(&attenuation * &scattering_pdf) * &self.ray_color(&scattered, depth - 1, world)) / pdf;
 
         &color_from_emission + &color_from_scatter
     }
