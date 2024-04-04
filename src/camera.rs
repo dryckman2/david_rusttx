@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io;
 use std::io::Write;
-use std::process::exit;
 use std::sync::Arc;
 
 use crate::hittables::hittable::Hittable;
@@ -13,10 +12,8 @@ use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::{random_in_unit_disk, Point3, Vec3};
 use crate::multithreading::render_to_memory;
-use crate::pdf::cosine_pdf::CosinePdf;
 use crate::pdf::hittable_pdf::HittablePdf;
 use crate::pdf::mixture_pdf::MixturePdf;
-use crate::pdf::pdf::Pdf;
 use crate::rtweekend::{degrees_to_radians, random_double, INFINITY};
 
 #[derive(Clone)]

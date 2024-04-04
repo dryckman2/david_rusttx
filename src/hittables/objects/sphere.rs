@@ -141,17 +141,14 @@ impl Hittable for Sphere {
 
     fn pdf_value(&self, o: &Point3, v: &Vec3) -> f64 {
         // This method only works for stationary spheres.
-        let rec;
-        match (self.hit(
+        match self.hit(
             &Ray::from(o.clone(), v.clone()),
             &Interval::from(0.001, INFINITY),
-        )) {
+        ) {
             None => {
                 return 0.0;
             }
-            Some(x) => {
-                rec = x;
-            }
+            Some(_) => {}
         }
         let cos_theta_max =
             f64::sqrt(1.0 - self.radius * self.radius / (&self.center1 - o).length_squared());

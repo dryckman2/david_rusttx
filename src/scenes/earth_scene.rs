@@ -5,7 +5,6 @@ use crate::materials::lambertian::Lambertian;
 use crate::materials::MatEnum;
 use crate::math_structures::color::Color;
 use crate::math_structures::vec3::{Point3, Vec3};
-use crate::scenes::quads_scene::QuadsScene;
 use crate::scenes::Scene;
 use crate::textures::image_texture::ImageTexture;
 use crate::textures::TexEnum;

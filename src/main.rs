@@ -26,14 +26,14 @@ use crate::scenes::Scene;
 use std::fs::File;
 use std::io::Write;
 
-pub const NUM_OF_ACTIVE_THREADS: usize = 2;
-pub const IMAGE_WIDTH: i64 = 600;
-pub const SAMPLE_PP: i64 = 100;
+pub const NUM_OF_ACTIVE_THREADS: usize = 12;
+pub const IMAGE_WIDTH: i64 = 800;
+pub const SAMPLE_PP: i64 = 1_000;
 pub const MAX_DEPTH: i64 = 50;
 
 fn uncapped_main() {
     let mut scene;
-    match 7 {
+    match 1 {
         1 => {
             scene = Box::new(QuadsScene::blank()) as Box<dyn Scene>;
         }
@@ -66,7 +66,7 @@ fn uncapped_main() {
         }
     };
     scene.generate_scene(IMAGE_WIDTH, SAMPLE_PP, MAX_DEPTH);
-    let output_file = "./image.ppm";
+    let output_file = "./image_output.ppm";
 
     //Open Image
     let mut out_file = File::create(output_file).expect("Couldn't Open File!");
@@ -75,7 +75,6 @@ fn uncapped_main() {
     let cam = scene.get_cam();
     let world = scene.get_world();
     let lights = scene.get_lights();
-    // cam.render(&mut out_file, &world, &lights);
     cam.multi_threaded_render(&mut out_file, &world, &lights);
 }
 

@@ -54,8 +54,8 @@ impl Aabb {
         };
     }
 
-    pub fn hit(&self, r: &Ray) -> Option<Interval> {
-        let mut ray_t = Interval::blank();
+    pub fn hit(&self, r: &Ray, ray_t: &Interval) -> Option<Interval> {
+        let mut new_ray = ray_t.clone();
         for a in 0..3 {
             let inv_d = 1.0 / r.direction()[a];
             let orig = r.origin()[a];
@@ -67,17 +67,17 @@ impl Aabb {
                 swap(&mut t0, &mut t1);
             }
             if t0 > ray_t.min {
-                ray_t.min = t0;
+                new_ray.min = t0;
             }
             if t1 < ray_t.max {
-                ray_t.max = t1;
+                new_ray.max = t1;
             }
 
-            if ray_t.max <= ray_t.min {
+            if new_ray.max <= new_ray.min {
                 return None;
             }
         }
-        return Some(ray_t);
+        return Some(new_ray);
     }
 
     pub fn pad(&self) -> Aabb {

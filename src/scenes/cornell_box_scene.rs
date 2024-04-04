@@ -8,7 +8,6 @@ use crate::hittables::translate::Translate;
 use crate::materials::dielectric::Dielectric;
 use crate::materials::diffuse_light::DiffuseLight;
 use crate::materials::lambertian::Lambertian;
-use crate::materials::metal::Metal;
 use crate::materials::{DefaultMat, MatEnum};
 use crate::math_structures::color::Color;
 use crate::math_structures::vec3::{Point3, Vec3};
@@ -86,14 +85,14 @@ impl Scene for CornellBoxScene {
         )));
 
         //Boxes
-        let aluminum = Arc::new(MatEnum::Metal(Metal::from(
-            Color::from(0.8, 0.85, 0.88),
-            0.0,
-        )));
+        // let aluminum = Arc::new(MatEnum::Metal(Metal::from(
+        //     Color::from(0.8, 0.85, 0.88),
+        //     0.0,
+        // )));
         let mut box1 = Quad::make_box(
             &Point3::from(0.0, 0.0, 0.0),
             &Point3::from(165.0, 330.0, 165.0),
-            aluminum.clone(),
+            white.clone(),
         ) as Arc<dyn Hittable + Send + Sync>;
         box1 = Arc::new(RotateY::from(box1, 15.0));
         box1 = Arc::new(Translate::from(box1, Vec3::from(265.0, 0.0, 295.0)));
@@ -117,8 +116,11 @@ impl Scene for CornellBoxScene {
             m.clone(),
         )));
 
-        lights.add(Arc::new(Sphere::from(Point3::from(190.0, 90.0, 190.0), 90.0, m)));
-
+        lights.add(Arc::new(Sphere::from(
+            Point3::from(190.0, 90.0, 190.0),
+            90.0,
+            m,
+        )));
 
         let aspect_ratio = 1.0;
         let background = Color::from(0.0, 0.0, 0.0);

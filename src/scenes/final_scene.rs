@@ -141,13 +141,13 @@ impl Scene for FinalScene {
         ))));
         let ns = 1000;
         for _ in 0..ns {
-            boxes2.add(Arc::new(Sphere::from(
+            let cir = Arc::new(Sphere::from(
                 Point3::random_bounded(0.0, 165.0),
                 10.0,
                 white.clone(),
-            )));
+            ));
+            boxes2.add(cir);
         }
-
         world.add(Arc::new(Translate::from(
             Arc::new(RotateY::from(Arc::new(BvhNode::from_list(&boxes2)), 15.0)),
             Vec3::from(-100.0, 270.0, 395.0),

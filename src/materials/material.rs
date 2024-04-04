@@ -2,7 +2,6 @@ use crate::hittables::hittable::HitRecord;
 use crate::math_structures::color::Color;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::{Point3, Vec3};
-use crate::pdf::cosine_pdf::CosinePdf;
 use crate::pdf::pdf::Pdf;
 use crate::pdf::sphere_pdf::SpherePdf;
 use enum_dispatch::enum_dispatch;
@@ -29,7 +28,7 @@ impl ScatterRecord {
 pub trait Material: Clone {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<ScatterRecord>;
 
-    fn emitted(&self, r_in: &Ray, rec: &HitRecord, _u: f64, _v: f64, _p: &Point3) -> Color {
+    fn emitted(&self, _r_in: &Ray, _rec: &HitRecord, _u: f64, _v: f64, _p: &Point3) -> Color {
         return Color::from(0.0, 0.0, 0.0);
     }
 

@@ -18,7 +18,7 @@ impl Pdf for MixturePdf {
     }
 
     fn generate(&self) -> Vec3 {
-        return if (random_double() < 0.5) {
+        return if random_double() < 0.5 {
             self.p[0].generate()
         } else {
             self.p[1].generate()

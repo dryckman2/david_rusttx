@@ -34,10 +34,10 @@ pub trait Hittable {
 
     fn clone_dyn(&self) -> Box<dyn Hittable + Send + Sync>;
 
-    fn pdf_value(&self, o: &Point3, v: &Vec3) -> f64 {
+    fn pdf_value(&self, _o: &Point3, _v: &Vec3) -> f64 {
         0.0
     }
-    fn random(&self, o: &Vec3) -> Vec3 {
+    fn random(&self, _o: &Vec3) -> Vec3 {
         Vec3::from(1.0, 0.0, 0.0)
     }
 }

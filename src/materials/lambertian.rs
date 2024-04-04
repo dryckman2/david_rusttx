@@ -1,7 +1,6 @@
 use crate::hittables::hittable::HitRecord;
 use crate::materials::material::{Material, ScatterRecord};
 use crate::math_structures::color::Color;
-use crate::math_structures::onb::Onb;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::Vec3;
 use crate::pdf::cosine_pdf::CosinePdf;
@@ -27,7 +26,7 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<ScatterRecord> {
+    fn scatter(&self, _r_in: &Ray, rec: &HitRecord) -> Option<ScatterRecord> {
         let mut srec = ScatterRecord::blank();
         srec.attenuation = self.albedo.value(rec.u, rec.v, &rec.p);
         srec.pdf_ptr = Box::new(CosinePdf::from(&rec.normal));

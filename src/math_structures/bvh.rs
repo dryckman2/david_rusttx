@@ -24,10 +24,15 @@ impl BvhNode {
         start: usize,
         end: usize,
     ) -> BvhNode {
-        let left;
-        let right;
-        let bbox;
-        let mut objects = (*src_objects).clone(); // Create a modifiable array of the source scene objects
+        let mut this = BvhNode {
+            left: Arc::new(HittableList::blank()),
+            right: Arc::new(HittableList::blank()),
+            bbox: Aabb::blank(),
+        };
+        let mut objects = vec![];
+        for obj in src_objects {
+            objects.push(obj.clone());
+        }
         let axis = random_int_bounded(0, 2);
         let comparator = if axis == 0 {
             Self::box_x_compare
@@ -39,30 +44,30 @@ impl BvhNode {
         let object_span = end - start;
         match object_span {
             1 => {
-                left = objects[start].clone();
-                right = objects[start].clone();
+                this.left = objects[start].clone();
+                this.right = objects[start].clone();
             }
             2 => {
                 if comparator(&objects[start], &objects[start + 1]) == Ordering::Less {
-                    left = objects[start].clone();
-                    right = objects[start + 1].clone();
+                    this.left = objects[start].clone();
+                    this.right = objects[start + 1].clone();
                 } else {
-                    left = objects[start + 1].clone();
-                    right = objects[start].clone();
+                    this.left = objects[start + 1].clone();
+                    this.right = objects[start].clone();
                 }
             }
             _ => {
                 objects.sort_by(comparator);
                 let mid = start + object_span / 2;
-                left = Arc::new(BvhNode::from(&objects, start, mid))
+                this.left = Arc::new(BvhNode::from(&objects, start, mid))
                     as Arc<dyn Hittable + Send + Sync>;
-                right =
+                this.right =
                     Arc::new(BvhNode::from(&objects, mid, end)) as Arc<dyn Hittable + Send + Sync>;
             }
         }
 
-        bbox = Aabb::from_aabbs(&left.bounding_box(), &right.bounding_box());
-        BvhNode { left, right, bbox }
+        this.bbox = Aabb::from_aabbs(&this.left.bounding_box(), &this.right.bounding_box());
+        this
     }
     pub fn box_compare(
         a: &Arc<dyn Hittable + Send + Sync>,
@@ -95,20 +100,23 @@ impl BvhNode {
 }
 
 impl Hittable for BvhNode {
-    fn hit(&self, r: &Ray, ray_t: &Interval) -> Option<HitRecord> {
-        let mut rec = None;
-        match self.bbox.hit(r) {
+    fn hit(&self, r: &Ray,  ray_t: &Interval) -> Option<HitRecord> {
+        let new_ray_t;
+        match self.bbox.hit(r, ray_t) {
             None => {
                 return None;
             }
-            Some(_) => {}
+            Some(x) => {
+                new_ray_t = x;
+            }
         }
 
-        match self.left.hit(r, &ray_t) {
+        let mut rec = None;
+        match self.left.hit(r, &new_ray_t) {
             None => {}
             Some(x) => rec = Some(x),
         }
-        match self.right.hit(r, &ray_t) {
+        match self.right.hit(r, &new_ray_t) {
             None => {}
             Some(x) => rec = Some(x),
         }

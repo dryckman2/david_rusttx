@@ -29,7 +29,7 @@ impl Material for MatEnum {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<ScatterRecord> {
         let x;
         match self {
-            MatEnum::Default(y) => {
+            MatEnum::Default(_) => {
                 panic!("Default Material Should Not Scatter!")
             }
             MatEnum::Lambertian(y) => {
@@ -54,7 +54,7 @@ impl Material for MatEnum {
     fn emitted(&self, r_in: &Ray, rec: &HitRecord, u: f64, v: f64, p: &Point3) -> Color {
         let x;
         match self {
-            MatEnum::Default(y) => {
+            MatEnum::Default(_) => {
                 panic!("Default Material Should Not Emit!")
             }
             MatEnum::Lambertian(y) => {
@@ -79,7 +79,7 @@ impl Material for MatEnum {
     fn scattering_pdf(&self, r_in: &Ray, rec: &HitRecord, scattered: &Ray) -> f64 {
         let x;
         match self {
-            MatEnum::Default(y) => {
+            MatEnum::Default(_) => {
                 panic!("Default Material Should Not Scatter PDF!")
             }
             MatEnum::Lambertian(y) => {
