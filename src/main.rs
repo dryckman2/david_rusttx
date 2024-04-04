@@ -11,8 +11,6 @@ mod volume;
 mod multithreading;
 mod pdf;
 
-use std::thread::Builder;
-
 use crate::scenes::cornell_box_scene::CornellBoxScene;
 use crate::scenes::cornell_smoke_scene::CornellSmokeScene;
 use crate::scenes::earth_scene::EarthScene;
@@ -25,6 +23,7 @@ use crate::scenes::two_spheres_scene::TwoSpheresScene;
 use crate::scenes::Scene;
 use std::fs::File;
 use std::io::Write;
+use std::thread::Builder;
 
 pub const NUM_OF_ACTIVE_THREADS: usize = 12;
 pub const IMAGE_WIDTH: i64 = 800;
@@ -78,7 +77,8 @@ fn uncapped_main() {
     cam.multi_threaded_render(&mut out_file, &world, &lights);
 }
 
-fn main() {
+
+ fn main() {
     let builder = Builder::new()
         .name("reductor".into())
         .stack_size(32 * 1024 * 1024 * 4); // 128MB of stack space
