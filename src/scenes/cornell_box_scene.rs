@@ -34,16 +34,16 @@ impl Scene for CornellBoxScene {
     fn generate_scene(&mut self, image_width: i64, samples_per_pixel: i64, max_depth: i64) {
         let mut world = HittableList::blank();
 
-        let red = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let red = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             0.65, 0.05, 0.05,
         ))));
-        let white = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let white = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             0.73, 0.73, 0.73,
         ))));
-        let green = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let green = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             0.12, 0.45, 0.15,
         ))));
-        let light = Arc::new(MatEnum::DiffuseLight(DiffuseLight::from_color(
+        let light = Box::new(MatEnum::DiffuseLight(DiffuseLight::from_color(
             Color::from(15.0, 15.0, 15.0),
         )));
 
@@ -99,7 +99,7 @@ impl Scene for CornellBoxScene {
         world.add(box1);
 
         // Glass Sphere
-        let glass = Arc::new(MatEnum::Dielectric(Dielectric::from(1.5)));
+        let glass = Box::new(MatEnum::Dielectric(Dielectric::from(1.5)));
         world.add(Arc::new(Sphere::from(
             Point3::from(190.0, 90.0, 190.0),
             90.0,
@@ -108,7 +108,7 @@ impl Scene for CornellBoxScene {
 
         // Light Sources
         let mut lights = HittableList::blank();
-        let m = Arc::new(MatEnum::Default(DefaultMat {}));
+        let m = Box::new(MatEnum::Default(DefaultMat {}));
         lights.add(Arc::new(Quad::from(
             Point3::from(343.0, 554.0, 332.0),
             Vec3::from(-130.0, 0.0, 0.0),

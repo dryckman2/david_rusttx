@@ -39,7 +39,7 @@ impl FinalScene {
 impl Scene for FinalScene {
     fn generate_scene(&mut self, image_width: i64, samples_per_pixel: i64, max_depth: i64) {
         let mut boxes1 = HittableList::blank();
-        let ground = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let ground = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             0.48, 0.83, 0.53,
         ))));
         let boxes_per_side = 20;
@@ -64,7 +64,7 @@ impl Scene for FinalScene {
         let mut world = HittableList::blank();
         world.add(Arc::new(boxes1));
 
-        let light = Arc::new(MatEnum::DiffuseLight(DiffuseLight::from_color(
+        let light = Box::new(MatEnum::DiffuseLight(DiffuseLight::from_color(
             Color::from(7.0, 7.0, 7.0),
         )));
         world.add(Arc::new(Quad::from(
@@ -76,7 +76,7 @@ impl Scene for FinalScene {
 
         let center1 = Point3::from(400.0, 400.0, 200.0);
         let center2 = &center1 + &Vec3::from(30.0, 0.0, 0.0);
-        let sphere_material = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let sphere_material = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             0.7, 0.3, 0.1,
         ))));
         world.add(Arc::new(Sphere::from_moving(
@@ -89,18 +89,18 @@ impl Scene for FinalScene {
         world.add(Arc::new(Sphere::from(
             Point3::from(260.0, 150.0, 45.0),
             50.0,
-            Arc::new(MatEnum::Dielectric(Dielectric::from(1.5))),
+            Box::new(MatEnum::Dielectric(Dielectric::from(1.5))),
         )));
         world.add(Arc::new(Sphere::from(
             Point3::from(0.0, 150.0, 145.0),
             50.0,
-            Arc::new(MatEnum::Metal(Metal::from(Color::from(0.8, 0.8, 0.9), 1.0))),
+            Box::new(MatEnum::Metal(Metal::from(Color::from(0.8, 0.8, 0.9), 1.0))),
         )));
 
         let boundary = Arc::new(Sphere::from(
             Point3::from(360.0, 150.0, 145.0),
             70.0,
-            Arc::new(MatEnum::Dielectric(Dielectric::from(1.5))),
+            Box::new(MatEnum::Dielectric(Dielectric::from(1.5))),
         ));
         world.add(boundary.clone());
         world.add(Arc::new(ConstantMedium::from_color(
@@ -111,7 +111,7 @@ impl Scene for FinalScene {
         let boundary = Arc::new(Sphere::from(
             Point3::from(0.0, 0.0, 0.0),
             5000.0,
-            Arc::new(MatEnum::Dielectric(Dielectric::from(1.5))),
+            Box::new(MatEnum::Dielectric(Dielectric::from(1.5))),
         ));
         world.add(Arc::new(ConstantMedium::from_color(
             boundary,
@@ -119,7 +119,7 @@ impl Scene for FinalScene {
             Color::from(1.0, 1.0, 1.0),
         )));
 
-        let emat = Arc::new(MatEnum::Lambertian(Lambertian::from_texture(
+        let emat = Box::new(MatEnum::Lambertian(Lambertian::from_texture(
             TexEnum::ImageTexture(ImageTexture::from("earthmap.jpg")),
         )));
         world.add(Arc::new(Sphere::from(
@@ -132,11 +132,11 @@ impl Scene for FinalScene {
         world.add(Arc::new(Sphere::from(
             Point3::from(220.0, 280.0, 300.0),
             80.0,
-            Arc::new(MatEnum::Lambertian(Lambertian::from_texture(pertext))),
+            Box::new(MatEnum::Lambertian(Lambertian::from_texture(pertext))),
         )));
 
         let mut boxes2 = HittableList::blank();
-        let white = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let white = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             0.73, 0.73, 0.73,
         ))));
         let ns = 1000;

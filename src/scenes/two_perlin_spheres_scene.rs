@@ -31,7 +31,7 @@ impl Scene for TwoPerlinSpheresScene {
         let mut world = HittableList::blank();
 
         let pertext = NoiseTexture::new(4.0);
-        let pertext_mat = Arc::new(MatEnum::Lambertian(Lambertian::from_texture(
+        let pertext_mat = Box::new(MatEnum::Lambertian(Lambertian::from_texture(
             TexEnum::NoiseTexture(pertext),
         )));
         world.add(Arc::new(Sphere::from(

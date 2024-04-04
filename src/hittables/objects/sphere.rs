@@ -1,5 +1,4 @@
 use std::ops::Deref;
-use std::sync::Arc;
 
 use crate::hittables::hittable::{HitRecord, Hittable};
 use crate::materials::MatEnum;
@@ -14,14 +13,14 @@ use crate::rtweekend::{random_double, INFINITY, PI};
 pub struct Sphere {
     center1: Point3,
     radius: f64,
-    mat: Arc<MatEnum>,
+    mat: Box<MatEnum>,
     is_moving: bool,
     center_vec: Vec3,
     bbox: Aabb,
 }
 
 impl Sphere {
-    pub fn from(center: Point3, radius: f64, mat: Arc<MatEnum>) -> Sphere {
+    pub fn from(center: Point3, radius: f64, mat: Box<MatEnum>) -> Sphere {
         let rvec = Vec3::from(radius, radius, radius);
         let bbox = Aabb::from_points(&(&center - &rvec), &(&center + &rvec));
         Sphere {
@@ -34,7 +33,7 @@ impl Sphere {
         }
     }
 
-    pub fn from_moving(center1: Point3, center2: Point3, radius: f64, mat: Arc<MatEnum>) -> Sphere {
+    pub fn from_moving(center1: Point3, center2: Point3, radius: f64, mat: Box<MatEnum>) -> Sphere {
         let rvec = Vec3::from(radius, radius, radius);
         let box1 = Aabb::from_points(&(&center1 - &rvec), &(&center1 + &rvec));
         let box2 = Aabb::from_points(&(&center2 - &rvec), &(&center2 + &rvec));

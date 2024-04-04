@@ -1,9 +1,12 @@
 use image::io::Reader as ImageReader;
-use image::{DynamicImage, GenericImageView, Rgba};
+use image::{ GenericImageView};
+use crate::math_structures::color::Color;
 
 #[derive(Clone)]
 pub struct RtwImage {
-    img: DynamicImage,
+    width: i64,
+    height:i64,
+    img: Vec<Vec<Color>>,
 }
 
 impl RtwImage {
@@ -20,22 +23,38 @@ impl RtwImage {
     }
 
     pub fn width(&self) -> i64 {
-        self.img.width() as i64
+        self.width
     }
     pub fn height(&self) -> i64 {
-        self.img.height() as i64
+        self.height
     }
 
-    pub fn pixel_data(&self, x: usize, y: usize) -> Rgba<u8> {
+    pub fn pixel_data(&self, x: usize, y: usize) -> Color {
         let x = clamp(x as i64, 0, self.width()) as usize;
         let y = clamp(y as i64, 0, self.height()) as usize;
-        self.img.get_pixel(x as u32, y as u32)
+        self.img[x][y]
     }
 }
 
 fn load(filename: String) -> Result<RtwImage, Box<dyn std::error::Error>> {
     let img = ImageReader::open(filename)?.decode()?;
-    Ok(RtwImage { img })
+    let image_width = img.width();
+    let image_height = img.height();
+    let mut image = vec![];
+    for x in 0..image_width{
+        let mut new_row = vec![];
+        for y in 0..image_height{
+        let pixel = img.get_pixel(x,y);
+
+            let color_scale = 1.0 / 255.0;
+            let r = color_scale * pixel[0] as f64;
+            let g = color_scale * pixel[1] as f64;
+            let b = color_scale * pixel[2] as f64;
+            new_row.push(Color::from(r,g,b));
+        }
+        image.push(new_row);
+    }
+    Ok(RtwImage { width: image_width as i64, height: image_height as i64, img:  image })
 }
 
 pub fn clamp(x: i64, low: i64, high: i64) -> i64 {

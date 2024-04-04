@@ -44,7 +44,7 @@ impl Scene for RandomSpheresScene {
         world.add(Arc::new(Sphere::from(
             Point3::from(0.0, -1000.0, 0.0),
             1000.0,
-            Arc::new(MatEnum::Lambertian(Lambertian::from_texture(
+            Box::new(MatEnum::Lambertian(Lambertian::from_texture(
                 TexEnum::CheckerTexture(checker),
             ))),
         )));
@@ -64,7 +64,7 @@ impl Scene for RandomSpheresScene {
                         let center2 =
                             &center + &Vec3::from(0.0, random_double_bounded(0.0, 0.5), 0.0);
                         let sphere_material =
-                            Arc::new(MatEnum::Lambertian(Lambertian::from_color(albedo)));
+                            Box::new(MatEnum::Lambertian(Lambertian::from_color(albedo)));
                         world.add(Arc::new(Sphere::from_moving(
                             center,
                             center2,
@@ -75,11 +75,11 @@ impl Scene for RandomSpheresScene {
                         // metal
                         let albedo = Color::random_bounded(0.5, 1.0);
                         let fuzz = random_double_bounded(0.0, 0.5);
-                        let sphere_material = Arc::new(MatEnum::Metal(Metal::from(albedo, fuzz)));
+                        let sphere_material = Box::new(MatEnum::Metal(Metal::from(albedo, fuzz)));
                         world.add(Arc::new(Sphere::from(center, 0.2, sphere_material)));
                     } else {
                         // glass
-                        let sphere_material = Arc::new(MatEnum::Dielectric(Dielectric::from(1.5)));
+                        let sphere_material = Box::new(MatEnum::Dielectric(Dielectric::from(1.5)));
                         world.add(Arc::new(Sphere::from(center, 0.2, sphere_material)));
                     }
                 }
@@ -87,14 +87,14 @@ impl Scene for RandomSpheresScene {
         }
 
         // Big Balls
-        let material1 = Arc::new(MatEnum::Dielectric(Dielectric::from(1.5)));
+        let material1 = Box::new(MatEnum::Dielectric(Dielectric::from(1.5)));
         world.add(Arc::new(Sphere::from(
             Point3::from(0.0, 1.0, 0.0),
             1.0,
             material1,
         )));
 
-        let material2 = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let material2 = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             0.4, 0.2, 0.1,
         ))));
         world.add(Arc::new(Sphere::from(
@@ -103,7 +103,7 @@ impl Scene for RandomSpheresScene {
             material2,
         )));
 
-        let material3 = Arc::new(MatEnum::Metal(Metal::from(Color::from(0.7, 0.6, 0.5), 0.0)));
+        let material3 = Box::new(MatEnum::Metal(Metal::from(Color::from(0.7, 0.6, 0.5), 0.0)));
         world.add(Arc::new(Sphere::from(
             Point3::from(4.0, 1.0, 0.0),
             1.0,

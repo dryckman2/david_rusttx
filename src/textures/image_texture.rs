@@ -29,13 +29,7 @@ impl Texture for ImageTexture {
 
         let i = (u * self.image.width() as f64) as usize;
         let j = (v * self.image.height() as f64) as usize;
-        let pixel = self.image.pixel_data(i, j);
 
-        let color_scale = 1.0 / 255.0;
-        let r = color_scale * pixel[0] as f64;
-        let g = color_scale * pixel[1] as f64;
-        let b = color_scale * pixel[2] as f64;
-
-        return Color::from(r, g, b);
+        return self.image.pixel_data(i, j);
     }
 }

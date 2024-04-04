@@ -33,7 +33,7 @@ impl Scene for SimpleListScene {
         let mut world = HittableList::blank();
 
         let pertext = NoiseTexture::new(4.0);
-        let pertext_mat = Arc::new(MatEnum::Lambertian(Lambertian::from_texture(
+        let pertext_mat = Box::new(MatEnum::Lambertian(Lambertian::from_texture(
             TexEnum::NoiseTexture(pertext),
         )));
         world.add(Arc::new(Sphere::from(
@@ -47,7 +47,7 @@ impl Scene for SimpleListScene {
             pertext_mat,
         )));
 
-        let difflight = Arc::new(MatEnum::DiffuseLight(DiffuseLight::from_color(
+        let difflight = Box::new(MatEnum::DiffuseLight(DiffuseLight::from_color(
             Color::from(4.0, 4.0, 4.0),
         )));
         world.add(Arc::new(Sphere::from(

@@ -30,19 +30,19 @@ impl Scene for QuadsScene {
         let lights = HittableList::blank();
 
         // materials
-        let left_red = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let left_red = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             1.0, 0.2, 0.2,
         ))));
-        let back_green = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let back_green = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             0.2, 1., 0.2,
         ))));
-        let right_blue = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let right_blue = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             0.2, 0.2, 1.0,
         ))));
-        let upper_orange = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let upper_orange = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             1.0, 0.5, 0.0,
         ))));
-        let lower_teal = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let lower_teal = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             0.2, 0.8, 0.8,
         ))));
 
