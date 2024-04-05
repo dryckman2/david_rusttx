@@ -26,14 +26,14 @@ use std::fs::File;
 use std::io::Write;
 use std::thread::Builder;
 
-pub const NUM_OF_ACTIVE_THREADS: usize = 2;
-pub const IMAGE_WIDTH: i64 = 200;
-pub const SAMPLE_PP: i64 = 50;
+pub const NUM_OF_ACTIVE_THREADS: usize = 4;
+pub const IMAGE_WIDTH: i64 = 800;
+pub const SAMPLE_PP: i64 = 1000;
 pub const MAX_DEPTH: i64 = 50;
 
 fn uncapped_main() {
     let mut scene;
-    match 10 {
+    match 7 {
         1 => {
             scene = Box::new(QuadsScene::blank()) as Box<dyn Scene>;
         }
@@ -83,7 +83,9 @@ fn uncapped_main() {
 
 fn main() {
     //This is a shitty fix that allows windows to run without crashing with stack overflow
-    let builder = Builder::new().name("reductor".into());
+    let builder = Builder::new()
+        .stack_size(8 * 1024 * 1024)
+        .name("reductor".into());
 
     let handler = builder
         .spawn(|| {

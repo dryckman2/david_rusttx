@@ -85,7 +85,7 @@ impl Scene for EarthInABallScene {
         let glass = Arc::new(MatEnum::Dielectric(Dielectric::from(1.5)));
         world.add(Arc::new(Sphere::from(
             Point3::from(190.0, 90.0, 190.0),
-            120.0,
+            90.0,
             glass,
         )));
 

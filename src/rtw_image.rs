@@ -10,7 +10,7 @@ pub struct RtwImage {
 
 impl RtwImage {
     pub fn from_image(image_filename: &str) -> RtwImage {
-        let full_file_name = "./images/".to_string() + image_filename;
+        let full_file_name = "./data/".to_string() + image_filename;
         match { load(full_file_name) } {
             Ok(x) => {
                 return x;
