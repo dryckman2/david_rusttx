@@ -17,7 +17,7 @@ pub struct Quad {
     q: Point3,
     u: Vec3,
     v: Vec3,
-    mat: Box<MatEnum>,
+    mat: Arc<MatEnum>,
     bbox: Aabb,
     normal: Vec3,
     d: f64,
@@ -26,7 +26,7 @@ pub struct Quad {
 }
 
 impl Quad {
-    pub fn from(q: Point3, u: Vec3, v: Vec3, mat: Box<MatEnum>) -> Quad {
+    pub fn from(q: Point3, u: Vec3, v: Vec3, mat: Arc<MatEnum>) -> Quad {
         let mut this = Quad {
             q,
             u,
@@ -49,7 +49,7 @@ impl Quad {
         this
     }
 
-    pub fn make_box(a: &Point3, b: &Point3, mat: Box<MatEnum>) -> Arc<HittableList> {
+    pub fn make_box(a: &Point3, b: &Point3, mat: Arc<MatEnum>) -> Arc<HittableList> {
         // Returns the 3D box (six sides) that contains the two opposite vertices a & b.
         let mut sides = HittableList::blank();
 

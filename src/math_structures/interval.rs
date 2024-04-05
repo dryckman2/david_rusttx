@@ -12,9 +12,11 @@ pub struct Interval {
     pub(crate) max: f64,
 }
 
+const BLANK_INTERVAL: Interval = Interval { min: 0.0, max: 0.0 };
+
 impl Interval {
     pub fn blank() -> Interval {
-        Interval { min: 0.0, max: 0.0 }
+        BLANK_INTERVAL.clone()
     }
 
     pub fn from(min: f64, max: f64) -> Interval {

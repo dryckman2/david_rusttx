@@ -26,10 +26,10 @@ use std::fs::File;
 use std::io::Write;
 use std::thread::Builder;
 
-pub const NUM_OF_ACTIVE_THREADS: usize = 1;
+pub const NUM_OF_ACTIVE_THREADS: usize = 2;
 pub const IMAGE_WIDTH: i64 = 200;
-pub const SAMPLE_PP: i64 = 20;
-pub const MAX_DEPTH: i64 = 25;
+pub const SAMPLE_PP: i64 = 50;
+pub const MAX_DEPTH: i64 = 50;
 
 fn uncapped_main() {
     let mut scene;
@@ -78,12 +78,12 @@ fn uncapped_main() {
     let cam = scene.get_cam();
     let world = scene.get_world();
     let lights = scene.get_lights();
-    // cam.render(&mut out_file, &world, &lights)
     cam.multi_threaded_render(&mut out_file, &world, &lights);
 }
 
 fn main() {
-    let builder = Builder::new().name("reductor".into()); // 32MB of stack space
+    //This is a shitty fix that allows windows to run without crashing with stack overflow
+    let builder = Builder::new().name("reductor".into());
 
     let handler = builder
         .spawn(|| {

@@ -9,8 +9,6 @@ use crate::materials::{DefaultMat, MatEnum};
 use crate::math_structures::color::Color;
 use crate::math_structures::vec3::{Point3, Vec3};
 use crate::scenes::Scene;
-use crate::textures::image_texture::ImageTexture;
-use crate::textures::TexEnum;
 use std::sync::Arc;
 
 pub struct EarthInABallScene {
@@ -33,16 +31,16 @@ impl Scene for EarthInABallScene {
     fn generate_scene(&mut self, image_width: i64, samples_per_pixel: i64, max_depth: i64) {
         let mut world = HittableList::blank();
 
-        let red = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let red = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             0.65, 0.05, 0.05,
         ))));
-        let white = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let white = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             0.73, 0.73, 0.73,
         ))));
-        let green = Box::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+        let green = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             0.12, 0.45, 0.15,
         ))));
-        let light = Box::new(MatEnum::DiffuseLight(DiffuseLight::from_color(
+        let light = Arc::new(MatEnum::DiffuseLight(DiffuseLight::from_color(
             Color::from(15.0, 15.0, 15.0),
         )));
 
@@ -83,8 +81,8 @@ impl Scene for EarthInABallScene {
             white.clone(),
         )));
 
-        // Glass Sphere
-        let glass = Box::new(MatEnum::Dielectric(Dielectric::from(1.5)));
+        // // Glass Sphere
+        let glass = Arc::new(MatEnum::Dielectric(Dielectric::from(1.5)));
         world.add(Arc::new(Sphere::from(
             Point3::from(190.0, 90.0, 190.0),
             120.0,
@@ -92,18 +90,18 @@ impl Scene for EarthInABallScene {
         )));
 
         //Earth Sphere
-        let earth_texture = Box::new(MatEnum::Lambertian(Lambertian::from_texture(
-            TexEnum::ImageTexture(ImageTexture::from("earthmap.jpg")),
-        )));
-        world.add(Arc::new(Sphere::from(
-            Point3::from(190.0, 90.0, 190.0),
-            80.0,
-            earth_texture,
-        )));
+        // let earth_texture = Box::new(MatEnum::Lambertian(Lambertian::from_texture(
+        //     TexEnum::ImageTexture(ImageTexture::from("earthmap.jpg")),
+        // )));
+        // world.add(Arc::new(Sphere::from(
+        //     Point3::from(190.0, 90.0, 190.0),
+        //     60.0,
+        //     earth_texture,
+        // )));
 
         // Light Sources
         let mut lights = HittableList::blank();
-        let m = Box::new(MatEnum::Default(DefaultMat {}));
+        let m = Arc::new(MatEnum::Default(DefaultMat {}));
         lights.add(Arc::new(Quad::from(
             Point3::from(343.0, 554.0, 332.0),
             Vec3::from(-130.0, 0.0, 0.0),

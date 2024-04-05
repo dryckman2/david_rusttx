@@ -32,7 +32,7 @@ impl Scene for TwoSpheresScene {
 
         let checker =
             CheckerTexture::from_color(0.8, Color::from(0.2, 0.3, 0.1), Color::from(0.9, 0.9, 0.9));
-        let checker_rc = Box::new(MatEnum::Lambertian(Lambertian::from_texture(
+        let checker_rc = Arc::new(MatEnum::Lambertian(Lambertian::from_texture(
             TexEnum::CheckerTexture(checker),
         )));
         world.add(Arc::new(Sphere::from(

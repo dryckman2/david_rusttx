@@ -31,7 +31,7 @@ impl Scene for EarthScene {
         let mut world = HittableList::blank();
 
         let earth_texture = ImageTexture::from("earthmap.jpg");
-        let earth_surface = Box::new(MatEnum::Lambertian(Lambertian::from_texture(
+        let earth_surface = Arc::new(MatEnum::Lambertian(Lambertian::from_texture(
             TexEnum::ImageTexture(earth_texture),
         )));
         let globe = Arc::new(Sphere::from(

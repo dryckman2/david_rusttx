@@ -10,9 +10,11 @@ pub struct Vec3 {
 
 pub type Point3 = Vec3;
 
+const BLANK_VEC3: Vec3 = Vec3 { e: [0.0, 0.0, 0.0] };
+
 impl Vec3 {
     pub fn blank() -> Vec3 {
-        Vec3 { e: [0.0, 0.0, 0.0] }
+        BLANK_VEC3.clone()
     }
 
     pub fn from(e0: f64, e1: f64, e2: f64) -> Vec3 {
