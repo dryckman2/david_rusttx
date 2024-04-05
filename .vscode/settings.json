@@ -8,6 +8,7 @@
         "emat",
         "hitpt",
         "hittables",
+        "indicatif",
         "Lambertian",
         "lookat",
         "lookfrom",
@@ -15,6 +16,7 @@
         "pertext",
         "reductor",
         "rtweekend",
+        "threadpool",
         "vfov"
     ]
 }

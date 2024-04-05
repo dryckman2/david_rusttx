@@ -29,7 +29,7 @@ use std::thread::Builder;
 
 pub const NUM_OF_ACTIVE_THREADS: usize = 12;
 pub const IMAGE_WIDTH: i64 = 800;
-pub const SAMPLE_PP: i64 = 1000;
+pub const SAMPLE_PP: i64 = 100;
 pub const MAX_DEPTH: i64 = 50;
 
 fn uncapped_main() {
