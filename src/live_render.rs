@@ -4,17 +4,16 @@ use std::sync::mpsc::Receiver;
 use sdl2::event::Event;
 use sdl2::pixels::PixelFormatEnum;
 use sdl2::rect::Rect;
-use sdl2::render::{Texture, WindowCanvas};
+use sdl2::surface::Surface;
 
 use crate::winsdl::Winsdl;
 
 pub fn show_screen(
-    height: usize,
     width: usize,
+    height: usize,
     rx: Receiver<(i64, String)>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut win_sdl = Winsdl::new(width, height)?;
-
+    let mut win_sdl = Winsdl::new(width, height)?;2
     let mut canvas = win_sdl
         .window
         .into_canvas()
@@ -22,10 +21,8 @@ pub fn show_screen(
         .map_err(|e| e.to_string())?;
     let texture_creator = canvas.texture_creator();
 
-    let mut texture = texture_creator
-        .create_texture_streaming(PixelFormatEnum::RGB24, width as u32, height as u32)
-        .map_err(|e| e.to_string())?;
-
+    let mut surface = Surface::new(width as u32, height as u32, PixelFormatEnum::RGB888).unwrap();
+    let mut texture = surface.as_texture(&texture_creator).unwrap();
     let mut pending_map = HashMap::new();
 
     let mut needed_index = 0;
@@ -47,13 +44,13 @@ pub fn show_screen(
         if pending_map.contains_key(&needed_index) {
             while pending_map.contains_key(&needed_index) {
                 let msg = pending_map.remove(&needed_index).unwrap().to_owned();
-                change_texture(
-                    (needed_index, msg),
-                    height,
+                change_surface(
+                    msg,
+                    needed_index,
                     width,
-                    &mut texture,
-                    &mut canvas,
+                    &mut surface,
                 );
+                texture = surface.as_texture(&texture_creator).unwrap();
                 needed_index += 1;
             }
             // Clear the canvas
@@ -74,29 +71,24 @@ pub fn show_screen(
     Ok(())
 }
 
-fn change_texture(
-    msg: (i64, String),
-    height: usize,
+fn change_surface(
+    msg: String,
+    y: i64,
     width: usize,
-    texture: &mut Texture,
-    canvas: &mut WindowCanvas,
+    surface: &mut Surface,
 ) {
-    let y = msg.0;
-    let mut data = msg.1.trim().split("\n");
+    let mut data = msg.trim().split("\n");
+    let offset = y as usize * width * 3;
     for x in 0..width {
         let mut line = data.next().unwrap().split(" ");
-        let r = line.next().unwrap().trim().parse::<i64>().unwrap();
-        let g = line.next().unwrap().trim().parse::<i64>().unwrap();
-        let b = line.next().unwrap().trim().parse::<i64>().unwrap();
-
-        texture
-            .with_lock(None, |buffer: &mut [u8], pitch: usize| {
-                let index = y as usize * pitch + x * 3;
-                buffer[index] = r as u8;
-                buffer[index + 1] = g as u8;
-                buffer[index + 2] = b as u8;
-            })
-            .map_err(|e| format!("Error updating texture: {}", e))
-            .unwrap();
+        let r = line.next().unwrap().trim().parse::<u8>().unwrap();
+        let g = line.next().unwrap().trim().parse::<u8>().unwrap();
+        let b = line.next().unwrap().trim().parse::<u8>().unwrap();
+        surface
+            .with_lock_mut(|buffer: &mut [u8]| {
+                buffer[x + offset] = r;
+                buffer[x + offset + 1] = g;
+                buffer[x + offset + 2] = b;
+            });
     }
 }

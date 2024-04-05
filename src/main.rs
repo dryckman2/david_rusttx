@@ -33,8 +33,8 @@ use std::sync::mpsc::channel;
 use std::thread::{self};
 
 pub const NUM_OF_ACTIVE_THREADS: usize = 2;
-pub const IMAGE_WIDTH: i64 = 1080;
-pub const SAMPLE_PP: i64 = 1000;
+pub const IMAGE_WIDTH: i64 = 800;
+pub const SAMPLE_PP: i64 = 1;
 pub const MAX_DEPTH: i64 = 50;
 
 fn main() {
@@ -83,13 +83,13 @@ fn main() {
     let (tx, rx) = channel();
 
     let cam = scene.get_cam().clone();
-    let height = cam.image_height;
     let width = cam.image_width;
+    let height = cam.image_height;
     let world = scene.get_world().clone();
     let lights = scene.get_lights().clone();
     let h = thread::spawn(|| render_to_memory(cam, world, lights, tx));
 
-    show_screen(height as usize, width as usize, rx).unwrap();
+    show_screen(width as usize, height as usize, rx).unwrap();
 
     //After Image is closed write results to file
     let mut out_file = File::create("image_output.ppm").unwrap();
