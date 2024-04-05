@@ -18,5 +18,9 @@
         "rtweekend",
         "threadpool",
         "vfov"
+    ],
+    "rust-analyzer.linkedProjects": [
+        "./Cargo.toml",
+        "./Cargo.toml"
     ]
 }

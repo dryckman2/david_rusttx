@@ -6,7 +6,7 @@ use indicatif::ProgressBar;
 use sorted_vec::SortedVec;
 use std::io::Write;
 use std::ops::Deref;
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{channel, Sender};
 use std::sync::Arc;
 use std::time::Instant;
 use threadpool::ThreadPool;
@@ -15,6 +15,7 @@ pub fn render_to_memory(
     camera: Arc<Camera>,
     world: Arc<HittableList>,
     lights: Arc<HittableList>,
+    pixel_pipe: Sender<(i64, String)>,
 ) -> Vec<String> {
     let start_time = Instant::now();
 
@@ -33,6 +34,7 @@ pub fn render_to_memory(
         let threads_lights = lights.deref().clone();
         let progress = Arc::clone(&bar);
         let thread_tx = tx.clone();
+        let thread_pixel_pipe = pixel_pipe.clone();
 
         pool.execute(move || {
             thread_tx
@@ -42,6 +44,7 @@ pub fn render_to_memory(
                     threads_lights,
                     i,
                     progress,
+                    thread_pixel_pipe,
                 ))
                 .unwrap();
         });
@@ -62,7 +65,7 @@ pub fn render_to_memory(
     //Double Check All Jobs are finished; should be unnecessary
     pool.join();
 
-    // results.sort_by(|a, b| { a.0.cmp(&b.0) });
+    drop(pixel_pipe);
 
     let time_took = start_time.elapsed();
     bar.finish();
@@ -76,6 +79,7 @@ pub fn thread_render(
     lights: HittableList,
     row_num: i64,
     progress: Arc<ProgressBar>,
+    pixel_pipe: Sender<(i64, String)>,
 ) -> (i64, String) {
     let j = row_num;
     let mut s = String::new();
@@ -84,12 +88,13 @@ pub fn thread_render(
         for s_j in 0..(cam.sqrt_spp as i64) {
             for s_i in 0..(cam.sqrt_spp as i64) {
                 let r = cam.get_ray(i, j, s_i, s_j);
-                pixel_color += &cam.ray_color(&r, cam.max_depth, &world, &lights);
+                let ray_color = &cam.ray_color(&r, cam.max_depth, &world, &lights);
+                pixel_color += ray_color;
             }
         }
-
         s += &*write_color_string(&pixel_color, cam.samples_per_pixel);
     }
+    pixel_pipe.send((j, s.clone())).unwrap();
     progress.inc(1);
     (j, s)
 }

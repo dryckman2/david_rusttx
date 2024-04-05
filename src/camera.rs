@@ -78,21 +78,6 @@ impl Camera {
         println!("\rDone.                        \n");
     }
 
-    pub fn multi_threaded_render(
-        &self,
-        out_file: &mut File,
-        world: &HittableList,
-        lights: &HittableList,
-    ) {
-        let c = Arc::new((*self).clone());
-        let w = Arc::from((*world).clone());
-        let l = Arc::from((*lights).clone());
-        let x = render_to_memory(c, w, l);
-        for y in x {
-            out_file.write(y.as_bytes()).expect("TODO: panic message");
-        }
-    }
-
     pub fn initialize(
         aspect_ratio: f64,
         image_width: i64,

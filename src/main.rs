@@ -8,9 +8,13 @@ mod scenes;
 mod textures;
 mod volume;
 
+mod live_render;
 mod multithreading;
 mod pdf;
+mod winsdl;
 
+use crate::live_render::show_screen;
+use crate::multithreading::render_to_memory;
 use crate::scenes::cornell_box_scene::CornellBoxScene;
 use crate::scenes::cornell_smoke_scene::CornellSmokeScene;
 use crate::scenes::diff_final_scene::DiffFinalScene;
@@ -24,17 +28,19 @@ use crate::scenes::two_perlin_spheres_scene::TwoPerlinSpheresScene;
 use crate::scenes::two_spheres_scene::TwoSpheresScene;
 use crate::scenes::Scene;
 use std::fs::File;
-use std::io::Write;
-use std::thread::Builder;
+use std::io::{self, Write};
+use std::sync::mpsc::channel;
+use std::thread::{self};
 
-pub const NUM_OF_ACTIVE_THREADS: usize = 12;
-pub const IMAGE_WIDTH: i64 = 800;
-pub const SAMPLE_PP: i64 = 100;
+pub const NUM_OF_ACTIVE_THREADS: usize = 2;
+pub const IMAGE_WIDTH: i64 = 1080;
+pub const SAMPLE_PP: i64 = 1000;
 pub const MAX_DEPTH: i64 = 50;
 
-fn uncapped_main() {
+fn main() {
     let mut scene;
-    match 11 {
+    let i = scene_selector().unwrap();
+    match i {
         1 => {
             scene = Box::new(QuadsScene::blank()) as Box<dyn Scene>;
         }
@@ -73,29 +79,44 @@ fn uncapped_main() {
         }
     };
     scene.generate_scene(IMAGE_WIDTH, SAMPLE_PP, MAX_DEPTH);
-    let output_file = "./image_output_.ppm";
 
-    //Open Image
-    let mut out_file = File::create(output_file).expect("Couldn't Open File!");
-    println!("World Setup Complete!");
-    std::io::stdout().flush().unwrap();
-    let cam = scene.get_cam();
-    let world = scene.get_world();
-    let lights = scene.get_lights();
-    cam.multi_threaded_render(&mut out_file, &world, &lights);
+    let (tx, rx) = channel();
+
+    let cam = scene.get_cam().clone();
+    let height = cam.image_height;
+    let width = cam.image_width;
+    let world = scene.get_world().clone();
+    let lights = scene.get_lights().clone();
+    let h = thread::spawn(|| render_to_memory(cam, world, lights, tx));
+
+    show_screen(height as usize, width as usize, rx).unwrap();
+
+    //After Image is closed write results to file
+    let mut out_file = File::create("image_output.ppm").unwrap();
+    let res = h.join().unwrap();
+    for y in res {
+        out_file.write(y.as_bytes()).expect("TODO: panic message");
+    }
 }
 
-fn main() {
-    //This is a shitty fix that allows windows to run without crashing with stack overflow
-    let builder = Builder::new()
-        .stack_size(8 * 1024 * 1024)
-        .name("reductor".into());
-
-    let handler = builder
-        .spawn(|| {
-            uncapped_main();
-        })
-        .unwrap();
-
-    handler.join().unwrap();
+fn scene_selector() -> Result<i64, Box<dyn std::error::Error>> {
+    println!("{SCENE_LIST}");
+    println!("Select Scene:");
+    let mut buff = String::new();
+    let _buff_n = io::stdin().read_line(&mut buff)?;
+    let i = buff.trim().parse()?;
+    Ok(i)
 }
+
+const SCENE_LIST: &'static str = " 1 => Quads Scene
+ 2 =>Two Perlin Spheres Scene
+ 3 => Random Sphere Scene
+ 4 => Two Spheres Scene
+ 5 => Earth Scene (Slow)
+ 6 => Simple List Scene
+ 7 => Cornell Box Scene
+ 8 => Cornell Smoke Scene (Slow)
+ 9 => Final Scene (Slow!)
+10 => Earth In A Ball Scene (Not working)
+11 => Different Final Scene (Kinda Slow)\
+";
