@@ -4,6 +4,7 @@ use std::sync::Arc;
 
 pub mod cornell_box_scene;
 pub mod cornell_smoke_scene;
+pub mod diff_final_scene;
 pub mod earth_in_a_ball;
 pub mod earth_scene;
 pub mod final_scene;

@@ -10,6 +10,4 @@ enum_dispatch = "0.3.13"
 image = "0.25.1"
 indicatif = "0.17.8"
 rand = "0.9.0-alpha.1"
-futures = { version = "0.3.30", features = ["thread-pool"] }
-threadpool = "1.8.1"
 sorted-vec = "0.8.3"

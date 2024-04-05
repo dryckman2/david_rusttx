@@ -13,6 +13,7 @@ mod pdf;
 
 use crate::scenes::cornell_box_scene::CornellBoxScene;
 use crate::scenes::cornell_smoke_scene::CornellSmokeScene;
+use crate::scenes::diff_final_scene::DiffFinalScene;
 use crate::scenes::earth_in_a_ball::EarthInABallScene;
 use crate::scenes::earth_scene::EarthScene;
 use crate::scenes::final_scene::FinalScene;
@@ -26,14 +27,14 @@ use std::fs::File;
 use std::io::Write;
 use std::thread::Builder;
 
-pub const NUM_OF_ACTIVE_THREADS: usize = 4;
+pub const NUM_OF_ACTIVE_THREADS: usize = 12;
 pub const IMAGE_WIDTH: i64 = 800;
 pub const SAMPLE_PP: i64 = 1000;
 pub const MAX_DEPTH: i64 = 50;
 
 fn uncapped_main() {
     let mut scene;
-    match 7 {
+    match 11 {
         1 => {
             scene = Box::new(QuadsScene::blank()) as Box<dyn Scene>;
         }
@@ -63,6 +64,9 @@ fn uncapped_main() {
         }
         10 => {
             scene = Box::new(EarthInABallScene::blank());
+        }
+        11 => {
+            scene = Box::new(DiffFinalScene::blank());
         }
         _ => {
             panic!("Invalid Scene Selected")
