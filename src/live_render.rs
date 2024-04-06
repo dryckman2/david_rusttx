@@ -1,13 +1,11 @@
-use std::collections::HashMap;
 use std::sync::mpsc::Receiver;
 
 use sdl2::event::Event;
 use sdl2::pixels::PixelFormatEnum;
 use sdl2::rect::Rect;
 use sdl2::surface::Surface;
-use crate::math_structures::color::Color;
-use crate::NUM_OF_ACTIVE_THREADS;
 
+use crate::math_structures::color::Color;
 use crate::winsdl::Winsdl;
 
 pub fn show_screen(
@@ -24,13 +22,12 @@ pub fn show_screen(
     let texture_creator = canvas.texture_creator();
 
     let mut surface = Surface::new(width as u32, height as u32, PixelFormatEnum::RGB24).unwrap();
-    let mut texture = surface.as_texture(&texture_creator).unwrap();
+    let mut texture;
 
     let max_chunk = width * 1000;
     let pitch = surface.pitch() as usize;
-    let mut needed_index = 0;
     'running: loop {
-        for event in win_sdl.event_pump.poll_event() {
+        while let Some(event) = win_sdl.event_pump.poll_event() {
             match event {
                 Event::Quit { .. } => {
                     break 'running;
@@ -43,7 +40,6 @@ pub fn show_screen(
             let mut count = 1;
             let msg = value.unwrap();
             change_surface(msg.2, msg.1, msg.0, pitch, &mut surface);
-            needed_index += 1;
             while let Ok(x) = rx.recv() {
                 let msg = x;
                 change_surface(msg.2, msg.1, msg.0, pitch, &mut surface);
