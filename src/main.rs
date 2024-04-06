@@ -34,7 +34,7 @@ use std::thread::{self};
 
 pub const NUM_OF_ACTIVE_THREADS: usize = 2;
 pub const IMAGE_WIDTH: i64 = 800;
-pub const SAMPLE_PP: i64 = 1;
+pub const SAMPLE_PP: i64 = 1000;
 pub const MAX_DEPTH: i64 = 50;
 
 fn main() {

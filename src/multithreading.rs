@@ -15,7 +15,7 @@ pub fn render_to_memory(
     camera: Arc<Camera>,
     world: Arc<HittableList>,
     lights: Arc<HittableList>,
-    pixel_pipe: Sender<(i64, String)>,
+    pixel_pipe: Sender<(i64, i64, Color)>,
 ) -> Vec<String> {
     let start_time = Instant::now();
 
@@ -79,7 +79,7 @@ pub fn thread_render(
     lights: HittableList,
     row_num: i64,
     progress: Arc<ProgressBar>,
-    pixel_pipe: Sender<(i64, String)>,
+    pixel_pipe: Sender<(i64, i64, Color)>,
 ) -> (i64, String) {
     let j = row_num;
     let mut s = String::new();
@@ -89,12 +89,12 @@ pub fn thread_render(
             for s_i in 0..(cam.sqrt_spp as i64) {
                 let r = cam.get_ray(i, j, s_i, s_j);
                 let ray_color = &cam.ray_color(&r, cam.max_depth, &world, &lights);
+                pixel_pipe.send((i, j, ray_color.clone())).unwrap();
                 pixel_color += ray_color;
             }
         }
         s += &*write_color_string(&pixel_color, cam.samples_per_pixel);
     }
-    pixel_pipe.send((j, s.clone())).unwrap();
     progress.inc(1);
     (j, s)
 }

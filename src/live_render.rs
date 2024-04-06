@@ -5,15 +5,17 @@ use sdl2::event::Event;
 use sdl2::pixels::PixelFormatEnum;
 use sdl2::rect::Rect;
 use sdl2::surface::Surface;
+use crate::math_structures::color::Color;
+use crate::NUM_OF_ACTIVE_THREADS;
 
 use crate::winsdl::Winsdl;
 
 pub fn show_screen(
     width: usize,
     height: usize,
-    rx: Receiver<(i64, String)>,
+    rx: Receiver<(i64, i64, Color)>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut win_sdl = Winsdl::new(width, height)?;2
+    let mut win_sdl = Winsdl::new(width, height)?;
     let mut canvas = win_sdl
         .window
         .into_canvas()
@@ -21,10 +23,11 @@ pub fn show_screen(
         .map_err(|e| e.to_string())?;
     let texture_creator = canvas.texture_creator();
 
-    let mut surface = Surface::new(width as u32, height as u32, PixelFormatEnum::RGB888).unwrap();
+    let mut surface = Surface::new(width as u32, height as u32, PixelFormatEnum::RGB24).unwrap();
     let mut texture = surface.as_texture(&texture_creator).unwrap();
-    let mut pending_map = HashMap::new();
 
+    let max_chunk = width * 1000;
+    let pitch = surface.pitch() as usize;
     let mut needed_index = 0;
     'running: loop {
         for event in win_sdl.event_pump.poll_event() {
@@ -37,22 +40,20 @@ pub fn show_screen(
         }
         let value = rx.recv();
         if value.is_ok() {
+            let mut count = 1;
             let msg = value.unwrap();
-            pending_map.insert(msg.0, msg.1);
-        }
-
-        if pending_map.contains_key(&needed_index) {
-            while pending_map.contains_key(&needed_index) {
-                let msg = pending_map.remove(&needed_index).unwrap().to_owned();
-                change_surface(
-                    msg,
-                    needed_index,
-                    width,
-                    &mut surface,
-                );
-                texture = surface.as_texture(&texture_creator).unwrap();
-                needed_index += 1;
+            change_surface(msg.2, msg.1, msg.0, pitch, &mut surface);
+            needed_index += 1;
+            while let Ok(x) = rx.recv() {
+                let msg = x;
+                change_surface(msg.2, msg.1, msg.0, pitch, &mut surface);
+                count += 1;
+                if count > max_chunk {
+                    break;
+                }
             }
+
+            texture = surface.as_texture(&texture_creator).unwrap();
             // Clear the canvas
             canvas.clear();
             // Render the texture
@@ -71,24 +72,15 @@ pub fn show_screen(
     Ok(())
 }
 
-fn change_surface(
-    msg: String,
-    y: i64,
-    width: usize,
-    surface: &mut Surface,
-) {
-    let mut data = msg.trim().split("\n");
-    let offset = y as usize * width * 3;
-    for x in 0..width {
-        let mut line = data.next().unwrap().split(" ");
-        let r = line.next().unwrap().trim().parse::<u8>().unwrap();
-        let g = line.next().unwrap().trim().parse::<u8>().unwrap();
-        let b = line.next().unwrap().trim().parse::<u8>().unwrap();
-        surface
-            .with_lock_mut(|buffer: &mut [u8]| {
-                buffer[x + offset] = r;
-                buffer[x + offset + 1] = g;
-                buffer[x + offset + 2] = b;
-            });
-    }
+fn change_surface(c: Color, y: i64, x: i64, pitch: usize, surface: &mut Surface) {
+    let offset = y as usize * pitch;
+    let x = x as usize;
+    let r = (c.x() * 255.0) as u8;
+    let g = (c.y() * 255.0) as u8;
+    let b = (c.z() * 255.0) as u8;
+    surface.with_lock_mut(|buffer: &mut [u8]| {
+        buffer[3 * x + offset] = r;
+        buffer[3 * x + offset + 1] = g;
+        buffer[3 * x + offset + 2] = b;
+    });
 }

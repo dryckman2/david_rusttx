@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io;
 use std::io::Write;
-use std::sync::Arc;
 
 use crate::hittables::hittable::Hittable;
 use crate::hittables::hittable_list::HittableList;
@@ -11,7 +10,6 @@ use crate::math_structures::color::{write_color, Color};
 use crate::math_structures::interval::Interval;
 use crate::math_structures::ray::Ray;
 use crate::math_structures::vec3::{random_in_unit_disk, Point3, Vec3};
-use crate::multithreading::render_to_memory;
 use crate::pdf::hittable_pdf::HittablePdf;
 use crate::pdf::mixture_pdf::MixturePdf;
 use crate::rtweekend::{degrees_to_radians, random_double, INFINITY};
