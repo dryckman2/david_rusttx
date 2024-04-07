@@ -43,7 +43,7 @@ impl Scene for EarthInABallScene {
             0.12, 0.45, 0.15,
         ))));
         let light = Arc::new(MatEnum::DiffuseLight(DiffuseLight::from_color(
-            Color::from(15.0, 15.0, 15.0),
+            Color::from(15.0, 10.0, 1.0),
         )));
 
         world.add(Arc::new(Quad::from(

@@ -16,6 +16,7 @@ mod winsdl;
 use scenes::chat_scene::ChatScene;
 use scenes::purple_cornell_box_scene::PurpleCornellBoxScene;
 
+// use crate::live_render::show_screen;
 use crate::live_render::show_screen;
 use crate::multithreading::render_to_memory;
 use crate::scenes::cornell_box_scene::CornellBoxScene;
@@ -35,9 +36,9 @@ use std::io::{self, Write};
 use std::sync::mpsc::channel;
 use std::thread::{self};
 
-pub const NUM_OF_ACTIVE_THREADS: usize = 2;
-pub const IMAGE_WIDTH: i64 = 200;
-pub const SAMPLE_PP: i64 = 100;
+pub const NUM_OF_ACTIVE_THREADS: usize = 4;
+pub const IMAGE_WIDTH: i64 = 1080;
+pub const SAMPLE_PP: i64 = 10_000;
 pub const MAX_DEPTH: i64 = 50;
 
 fn main() {
@@ -98,7 +99,7 @@ fn main() {
     let lights = scene.get_lights().clone();
     let h = thread::spawn(|| render_to_memory(cam, world, lights, tx));
 
-    show_screen(width as usize, height as usize, rx).unwrap();
+    // show_screen(width as usize, height as usize, rx).unwrap();
 
     //After Image is closed write results to file
     let mut out_file = File::create("image_output.ppm").unwrap();
