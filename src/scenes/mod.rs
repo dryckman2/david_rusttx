@@ -2,12 +2,14 @@ use crate::camera::Camera;
 use crate::hittables::hittable_list::HittableList;
 use std::sync::Arc;
 
+pub mod chat_scene;
 pub mod cornell_box_scene;
 pub mod cornell_smoke_scene;
 pub mod diff_final_scene;
 pub mod earth_in_a_ball;
 pub mod earth_scene;
 pub mod final_scene;
+pub mod purple_cornell_box_scene;
 pub mod quads_scene;
 pub mod random_spheres_scene;
 pub mod simple_list_scene;

@@ -7,6 +7,7 @@ use sdl2::surface::Surface;
 
 use crate::math_structures::color::Color;
 use crate::winsdl::Winsdl;
+use crate::NUM_OF_ACTIVE_THREADS;
 
 pub fn show_screen(
     width: usize,
@@ -24,7 +25,7 @@ pub fn show_screen(
     let mut surface = Surface::new(width as u32, height as u32, PixelFormatEnum::RGB24).unwrap();
     let mut texture;
 
-    let max_chunk = width * 1000;
+    let max_chunk = width * NUM_OF_ACTIVE_THREADS;
     let pitch = surface.pitch() as usize;
     'running: loop {
         while let Some(event) = win_sdl.event_pump.poll_event() {
@@ -40,13 +41,16 @@ pub fn show_screen(
             let mut count = 1;
             let msg = value.unwrap();
             change_surface(msg.2, msg.1, msg.0, pitch, &mut surface);
-            while let Ok(x) = rx.recv() {
-                let msg = x;
-                change_surface(msg.2, msg.1, msg.0, pitch, &mut surface);
-                count += 1;
-                if count > max_chunk {
-                    break;
+            while count < max_chunk {
+                let val = rx.recv();
+                match val {
+                    Ok(x) => {
+                        let msg = x;
+                        change_surface(msg.2, msg.1, msg.0, pitch, &mut surface);
+                    }
+                    Err(_) => break,
                 }
+                count += 1;
             }
 
             texture = surface.as_texture(&texture_creator).unwrap();
@@ -70,13 +74,13 @@ pub fn show_screen(
 
 fn change_surface(c: Color, y: i64, x: i64, pitch: usize, surface: &mut Surface) {
     let offset = y as usize * pitch;
-    let x = x as usize;
-    let r = (c.x() * 255.0) as u8;
-    let g = (c.y() * 255.0) as u8;
-    let b = (c.z() * 255.0) as u8;
+    let x = 3 * x as usize;
+    let r = c.x() as u8;
+    let g = c.y() as u8;
+    let b = c.z() as u8;
     surface.with_lock_mut(|buffer: &mut [u8]| {
-        buffer[3 * x + offset] = r;
-        buffer[3 * x + offset + 1] = g;
-        buffer[3 * x + offset + 2] = b;
+        buffer[x + offset] = r;
+        buffer[x + offset + 1] = g;
+        buffer[x + offset + 2] = b;
     });
 }

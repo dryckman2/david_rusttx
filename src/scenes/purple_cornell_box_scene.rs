@@ -1,27 +1,29 @@
 use crate::camera::Camera;
+use crate::hittables::hittable::Hittable;
 use crate::hittables::hittable_list::HittableList;
 use crate::hittables::objects::quad::Quad;
 use crate::hittables::objects::sphere::Sphere;
+use crate::hittables::rotate_y::RotateY;
+use crate::hittables::translate::Translate;
 use crate::materials::dielectric::Dielectric;
 use crate::materials::diffuse_light::DiffuseLight;
 use crate::materials::lambertian::Lambertian;
+use crate::materials::metal::Metal;
 use crate::materials::{DefaultMat, MatEnum};
 use crate::math_structures::color::Color;
 use crate::math_structures::vec3::{Point3, Vec3};
 use crate::scenes::Scene;
-use crate::textures::image_texture::ImageTexture;
-use crate::textures::TexEnum;
 use std::sync::Arc;
 
-pub struct EarthInABallScene {
+pub struct PurpleCornellBoxScene {
     pub(crate) cam: Option<Arc<Camera>>,
     pub(crate) world: Option<Arc<HittableList>>,
     pub(crate) lights: Option<Arc<HittableList>>,
 }
 
-impl EarthInABallScene {
-    pub fn blank() -> EarthInABallScene {
-        EarthInABallScene {
+impl PurpleCornellBoxScene {
+    pub fn blank() -> PurpleCornellBoxScene {
+        PurpleCornellBoxScene {
             cam: None,
             world: None,
             lights: None,
@@ -29,18 +31,18 @@ impl EarthInABallScene {
     }
 }
 
-impl Scene for EarthInABallScene {
+impl Scene for PurpleCornellBoxScene {
     fn generate_scene(&mut self, image_width: i64, samples_per_pixel: i64, max_depth: i64) {
         let mut world = HittableList::blank();
 
-        let red = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
-            0.65, 0.05, 0.05,
+        let purple = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+            0.65, 0.05, 0.65,
         ))));
         let white = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
             0.73, 0.73, 0.73,
         ))));
-        let green = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
-            0.12, 0.45, 0.15,
+        let yellow = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+            0.45, 0.45, 0.15,
         ))));
         let light = Arc::new(MatEnum::DiffuseLight(DiffuseLight::from_color(
             Color::from(15.0, 15.0, 15.0),
@@ -50,13 +52,13 @@ impl Scene for EarthInABallScene {
             Point3::from(555.0, 0.0, 0.0),
             Vec3::from(0.0, 555.0, 0.0),
             Vec3::from(0.0, 0.0, 555.0),
-            green,
+            yellow,
         )));
         world.add(Arc::new(Quad::from(
             Point3::from(0.0, 0.0, 0.0),
             Vec3::from(0.0, 555.0, 0.0),
             Vec3::from(0.0, 0.0, 555.0),
-            red,
+            purple,
         )));
         world.add(Arc::new(Quad::from(
             Point3::from(343.0, 554.0, 332.0),
@@ -83,22 +85,26 @@ impl Scene for EarthInABallScene {
             white.clone(),
         )));
 
+        //Boxes
+        let aluminum = Arc::new(MatEnum::Metal(Metal::from(
+            Color::from(0.8, 0.85, 0.88),
+            0.0,
+        )));
+        let mut box1 = Quad::make_box(
+            &Point3::from(0.0, 0.0, 0.0),
+            &Point3::from(165.0, 330.0, 165.0),
+            aluminum.clone(),
+        ) as Arc<dyn Hittable + Send + Sync>;
+        box1 = Arc::new(RotateY::from(box1, 15.0));
+        box1 = Arc::new(Translate::from(box1, Vec3::from(265.0, 0.0, 295.0)));
+        world.add(box1);
+
         // Glass Sphere
         let glass = Arc::new(MatEnum::Dielectric(Dielectric::from(1.5)));
         world.add(Arc::new(Sphere::from(
-            Point3::from(250.0, 150.0, 190.0),
-            150.0,
+            Point3::from(190.0, 90.0, 190.0),
+            90.0,
             glass,
-        )));
-
-        //Earth Sphere
-        let earth_texture = Arc::new(MatEnum::Lambertian(Lambertian::from_texture(
-            TexEnum::ImageTexture(ImageTexture::from("earthmap.jpg")),
-        )));
-        world.add(Arc::new(Sphere::from(
-            Point3::from(250.0, 150.0, 190.0),
-            60.0,
-            earth_texture,
         )));
 
         // Light Sources
@@ -111,11 +117,11 @@ impl Scene for EarthInABallScene {
             m.clone(),
         )));
 
-        // lights.add(Arc::new(Sphere::from(
-        //     Point3::from(190.0, 90.0, 190.0),
-        //     90.0,
-        //     m,
-        // )));
+        lights.add(Arc::new(Sphere::from(
+            Point3::from(190.0, 90.0, 190.0),
+            90.0,
+            m,
+        )));
 
         let aspect_ratio = 1.0;
         let background = Color::from(0.0, 0.0, 0.0);

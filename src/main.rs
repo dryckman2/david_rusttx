@@ -13,6 +13,9 @@ mod multithreading;
 mod pdf;
 mod winsdl;
 
+use scenes::chat_scene::ChatScene;
+use scenes::purple_cornell_box_scene::PurpleCornellBoxScene;
+
 use crate::live_render::show_screen;
 use crate::multithreading::render_to_memory;
 use crate::scenes::cornell_box_scene::CornellBoxScene;
@@ -33,8 +36,8 @@ use std::sync::mpsc::channel;
 use std::thread::{self};
 
 pub const NUM_OF_ACTIVE_THREADS: usize = 2;
-pub const IMAGE_WIDTH: i64 = 800;
-pub const SAMPLE_PP: i64 = 1000;
+pub const IMAGE_WIDTH: i64 = 200;
+pub const SAMPLE_PP: i64 = 100;
 pub const MAX_DEPTH: i64 = 50;
 
 fn main() {
@@ -73,6 +76,12 @@ fn main() {
         }
         11 => {
             scene = Box::new(DiffFinalScene::blank());
+        }
+        12 => {
+            scene = Box::new(PurpleCornellBoxScene::blank());
+        }
+        13 => {
+            scene = Box::new(ChatScene::blank());
         }
         _ => {
             panic!("Invalid Scene Selected")
@@ -118,5 +127,7 @@ const SCENE_LIST: &'static str = " 1 => Quads Scene
  8 => Cornell Smoke Scene (Slow)
  9 => Final Scene (Slow!)
 10 => Earth In A Ball Scene (Not working)
-11 => Different Final Scene (Kinda Slow)\
+11 => Different Final Scene (Kinda Slow)
+12 => Purple Cornell Box Scene
+13 => Chat Scene\
 ";

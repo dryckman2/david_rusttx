@@ -1,6 +1,6 @@
 use crate::camera::Camera;
 use crate::hittables::hittable_list::HittableList;
-use crate::math_structures::color::{write_color_string, Color};
+use crate::math_structures::color::{color_post_processing, Color};
 use crate::NUM_OF_ACTIVE_THREADS;
 use indicatif::ProgressBar;
 use sorted_vec::SortedVec;
@@ -88,12 +88,17 @@ pub fn thread_render(
         for s_j in 0..(cam.sqrt_spp as i64) {
             for s_i in 0..(cam.sqrt_spp as i64) {
                 let r = cam.get_ray(i, j, s_i, s_j);
-                let ray_color = &cam.ray_color(&r, cam.max_depth, &world, &lights);
-                pixel_pipe.send((i, j, ray_color.clone())).unwrap();
-                pixel_color += ray_color;
+                pixel_color += &cam.ray_color(&r, cam.max_depth, &world, &lights);
             }
         }
-        s += &*write_color_string(&pixel_color, cam.samples_per_pixel);
+        let pixel = color_post_processing(&pixel_color, cam.samples_per_pixel);
+        let _x = pixel_pipe.send((i, j, pixel));
+        s += &*format!(
+            "{} {} {}\n",
+            pixel.x() as i64,
+            pixel.y() as i64,
+            pixel.z() as i64,
+        );
     }
     progress.inc(1);
     (j, s)

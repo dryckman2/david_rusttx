@@ -17,7 +17,8 @@
         "reductor",
         "rtweekend",
         "threadpool",
-        "vfov"
+        "vfov",
+        "winsdl"
     ],
     "rust-analyzer.linkedProjects": [
         "./Cargo.toml",
