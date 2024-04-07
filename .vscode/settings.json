@@ -12,6 +12,7 @@
         "Lambertian",
         "lookat",
         "lookfrom",
+        "moonmap",
         "perlin",
         "pertext",
         "reductor",

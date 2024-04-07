@@ -59,12 +59,6 @@ impl Scene for EarthInABallScene {
             red,
         )));
         world.add(Arc::new(Quad::from(
-            Point3::from(343.0, 554.0, 332.0),
-            Vec3::from(-130.0, 0.0, 0.0),
-            Vec3::from(0.0, 0.0, -105.0),
-            light,
-        )));
-        world.add(Arc::new(Quad::from(
             Point3::from(0.0, 0.0, 0.0),
             Vec3::from(555.0, 0.0, 0.0),
             Vec3::from(0.0, 0.0, 555.0),
@@ -87,7 +81,7 @@ impl Scene for EarthInABallScene {
         let glass = Arc::new(MatEnum::Dielectric(Dielectric::from(1.5)));
         world.add(Arc::new(Sphere::from(
             Point3::from(250.0, 150.0, 190.0),
-            150.0,
+            200.0,
             glass,
         )));
 
@@ -101,14 +95,28 @@ impl Scene for EarthInABallScene {
             earth_texture,
         )));
 
+        let moon_texture = Arc::new(MatEnum::Lambertian(Lambertian::from_texture(
+            TexEnum::ImageTexture(ImageTexture::from("moonmap.jpeg")),
+        )));
+        world.add(Arc::new(Sphere::from(
+            Point3::from(340.0, 200.0, 190.0),
+            15.0,
+            moon_texture,
+        )));
+
         // Light Sources
+        let sun = Arc::new(Sphere::from(
+            Point3::from(343.0, 554.0, 332.0),
+            100.0,
+            light,
+        ));
+        world.add(sun.clone());
         let mut lights = HittableList::blank();
         let m = Arc::new(MatEnum::Default(DefaultMat {}));
-        lights.add(Arc::new(Quad::from(
+        lights.add(Arc::new(Sphere::from(
             Point3::from(343.0, 554.0, 332.0),
-            Vec3::from(-130.0, 0.0, 0.0),
-            Vec3::from(0.0, 0.0, -105.0),
-            m.clone(),
+            100.0,
+            m,
         )));
 
         // lights.add(Arc::new(Sphere::from(
