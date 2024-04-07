@@ -33,14 +33,14 @@ impl Scene for EarthInABallScene {
     fn generate_scene(&mut self, image_width: i64, samples_per_pixel: i64, max_depth: i64) {
         let mut world = HittableList::blank();
 
-        let red = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
-            0.65, 0.05, 0.05,
+        let light_purple = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+            0.20, 0.15, 0.20,
         ))));
-        let white = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
-            0.73, 0.73, 0.73,
+        let gray = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+            0.3, 0.35, 0.40,
         ))));
-        let green = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
-            0.12, 0.45, 0.15,
+        let light_green = Arc::new(MatEnum::Lambertian(Lambertian::from_color(Color::from(
+            0.15, 0.35, 0.15,
         ))));
         let light = Arc::new(MatEnum::DiffuseLight(DiffuseLight::from_color(
             Color::from(15.0, 10.0, 1.0),
@@ -50,31 +50,31 @@ impl Scene for EarthInABallScene {
             Point3::from(555.0, 0.0, 0.0),
             Vec3::from(0.0, 555.0, 0.0),
             Vec3::from(0.0, 0.0, 555.0),
-            green,
+            light_green,
         )));
         world.add(Arc::new(Quad::from(
             Point3::from(0.0, 0.0, 0.0),
             Vec3::from(0.0, 555.0, 0.0),
             Vec3::from(0.0, 0.0, 555.0),
-            red,
+            light_purple,
         )));
         world.add(Arc::new(Quad::from(
             Point3::from(0.0, 0.0, 0.0),
             Vec3::from(555.0, 0.0, 0.0),
             Vec3::from(0.0, 0.0, 555.0),
-            white.clone(),
+            gray.clone(),
         )));
         world.add(Arc::new(Quad::from(
             Point3::from(555.0, 555.0, 555.0),
             Vec3::from(-555.0, 0.0, 0.0),
             Vec3::from(0.0, 0.0, -555.0),
-            white.clone(),
+            gray.clone(),
         )));
         world.add(Arc::new(Quad::from(
             Point3::from(0.0, 0.0, 555.0),
             Vec3::from(555.0, 0.0, 0.0),
             Vec3::from(0.0, 555.0, 0.0),
-            white.clone(),
+            gray.clone(),
         )));
 
         // Glass Sphere

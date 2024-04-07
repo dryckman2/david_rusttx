@@ -1,4 +1,5 @@
 use std::sync::mpsc::Receiver;
+use std::time::{Duration, Instant};
 
 use sdl2::event::Event;
 use sdl2::pixels::PixelFormatEnum;
@@ -25,8 +26,11 @@ pub fn show_screen(
     let mut surface = Surface::new(width as u32, height as u32, PixelFormatEnum::RGB24).unwrap();
     let mut texture;
 
+    let last_applied = Instant::now();
     let max_chunk = width * NUM_OF_ACTIVE_THREADS;
+    let max_wait = Duration::from_secs(3);
     let pitch = surface.pitch() as usize;
+    let mut pending_pixels = vec![];
     'running: loop {
         while let Some(event) = win_sdl.event_pump.poll_event() {
             match event {
@@ -38,21 +42,12 @@ pub fn show_screen(
         }
         let value = rx.recv();
         if value.is_ok() {
-            let mut count = 1;
-            let msg = value.unwrap();
-            change_surface(msg.2, msg.1, msg.0, pitch, &mut surface);
-            while count < max_chunk {
-                let val = rx.recv();
-                match val {
-                    Ok(x) => {
-                        let msg = x;
-                        change_surface(msg.2, msg.1, msg.0, pitch, &mut surface);
-                    }
-                    Err(_) => break,
-                }
-                count += 1;
-            }
+            pending_pixels.push(value.unwrap());
+        }
 
+        if pending_pixels.len() > max_chunk || max_wait > last_applied.elapsed() {
+            change_surface(&pending_pixels, pitch, &mut surface);
+            pending_pixels.clear();
             texture = surface.as_texture(&texture_creator).unwrap();
             // Clear the canvas
             canvas.clear();
@@ -72,15 +67,18 @@ pub fn show_screen(
     Ok(())
 }
 
-fn change_surface(c: Color, y: i64, x: i64, pitch: usize, surface: &mut Surface) {
-    let offset = y as usize * pitch;
-    let x = 3 * x as usize;
-    let r = c.x() as u8;
-    let g = c.y() as u8;
-    let b = c.z() as u8;
-    surface.with_lock_mut(|buffer: &mut [u8]| {
-        buffer[x + offset] = r;
-        buffer[x + offset + 1] = g;
-        buffer[x + offset + 2] = b;
-    });
+fn change_surface(pending_pixels: &Vec<(i64, i64, Color)>, pitch: usize, surface: &mut Surface) {
+    for msg in pending_pixels {
+        let offset = msg.1 as usize * pitch;
+        let x = 3 * msg.0 as usize;
+        let c = msg.2;
+        let r = c.x() as u8;
+        let g = c.y() as u8;
+        let b = c.z() as u8;
+        surface.with_lock_mut(|buffer: &mut [u8]| {
+            buffer[x + offset] = r;
+            buffer[x + offset + 1] = g;
+            buffer[x + offset + 2] = b;
+        });
+    }
 }
