@@ -9,6 +9,7 @@ pub mod diff_final_scene;
 pub mod earth_in_a_ball;
 pub mod earth_scene;
 pub mod final_scene;
+pub mod jay_patel_scene;
 pub mod purple_cornell_box_scene;
 pub mod quads_scene;
 pub mod random_spheres_scene;

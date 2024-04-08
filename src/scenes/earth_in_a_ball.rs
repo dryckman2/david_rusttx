@@ -119,12 +119,6 @@ impl Scene for EarthInABallScene {
             m,
         )));
 
-        // lights.add(Arc::new(Sphere::from(
-        //     Point3::from(190.0, 90.0, 190.0),
-        //     90.0,
-        //     m,
-        // )));
-
         let aspect_ratio = 1.0;
         let background = Color::from(0.0, 0.0, 0.0);
 

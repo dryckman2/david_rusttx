@@ -49,7 +49,7 @@ impl Scene for EarthScene {
         let vup = Vec3::from(0.0, 1.0, 0.0);
 
         let defocus_angle = 0.0;
-        let background = Color::from(0.70, 0.80, 1.00);
+        let background = Color::from(0.0, 0.0, 0.0);
 
         let cam = Camera::initialize(
             aspect_ratio,

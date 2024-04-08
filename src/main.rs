@@ -14,6 +14,7 @@ mod pdf;
 mod winsdl;
 
 use scenes::chat_scene::ChatScene;
+use scenes::jay_patel_scene::JayPatelScene;
 use scenes::purple_cornell_box_scene::PurpleCornellBoxScene;
 
 // use crate::live_render::show_screen;
@@ -84,6 +85,9 @@ fn main() {
         13 => {
             scene = Box::new(ChatScene::blank());
         }
+        14 => {
+            scene = Box::new(JayPatelScene::blank());
+        }
         _ => {
             panic!("Invalid Scene Selected")
         }
@@ -100,12 +104,15 @@ fn main() {
     let h = thread::spawn(|| render_to_memory(cam, world, lights, tx));
 
     show_screen(width as usize, height as usize, rx).unwrap();
+    show_screen(width as usize, height as usize, rx).unwrap();
 
     //After Image is closed write results to file
     let mut out_file = File::create("image_output.ppm").unwrap();
     let res = h.join().unwrap();
     for y in res {
-        out_file.write(y.as_bytes()).expect("TODO: panic message");
+        out_file
+            .write(y.as_bytes())
+            .expect("Couldn't write output image");
     }
 }
 
@@ -127,8 +134,9 @@ const SCENE_LIST: &'static str = " 1 => Quads Scene
  7 => Cornell Box Scene
  8 => Cornell Smoke Scene (Slow)
  9 => Final Scene (Slow!)
-10 => Earth In A Ball Scene (Not working)
+10 => Earth In A Ball Scene
 11 => Different Final Scene (Kinda Slow)
 12 => Purple Cornell Box Scene
-13 => Chat Scene\
+13 => Chat Scene
+14 => Jay Patel??\
 ";
