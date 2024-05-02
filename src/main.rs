@@ -37,9 +37,9 @@ use std::io::{self, Write};
 use std::sync::mpsc::channel;
 use std::thread::{self};
 
-pub const NUM_OF_ACTIVE_THREADS: usize = 12;
-pub const IMAGE_WIDTH: i64 = 1080;
-pub const SAMPLE_PP: i64 = 1000;
+pub const NUM_OF_ACTIVE_THREADS: usize = 4;
+pub const IMAGE_WIDTH: i64 = 800;
+pub const SAMPLE_PP: i64 = 500;
 pub const MAX_DEPTH: i64 = 50;
 
 fn main() {
@@ -103,7 +103,6 @@ fn main() {
     let lights = scene.get_lights().clone();
     let h = thread::spawn(|| render_to_memory(cam, world, lights, tx));
 
-    show_screen(width as usize, height as usize, rx).unwrap();
     show_screen(width as usize, height as usize, rx).unwrap();
 
     //After Image is closed write results to file

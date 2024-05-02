@@ -4,6 +4,7 @@ use crate::hittables::hittable_list::HittableList;
 use crate::hittables::objects::quad::Quad;
 use crate::hittables::objects::sphere::Sphere;
 use crate::hittables::rotate_y::RotateY;
+use crate::hittables::translate::Translate;
 use crate::materials::dielectric::Dielectric;
 use crate::materials::diffuse_light::DiffuseLight;
 use crate::materials::lambertian::Lambertian;
@@ -84,17 +85,25 @@ impl Scene for JayPatelScene {
             TexEnum::ImageTexture(jay_texture),
         )));
 
-        let jay_point = Point3::from(-400.0, 200.0, 275.0);
-        let mut jay = Arc::new(Sphere::from(jay_point.clone(), 75.0, jay_surface))
-            as Arc<dyn Hittable + Send + Sync>;
-        jay = Arc::new(RotateY::from(jay, 90.0));
+        // let jay_point = Point3::from(-400.0, 200.0, 275.0);
+        // let mut jay = Arc::new(Sphere::from(jay_point.clone(), 75.0, jay_surface))
+        //     as Arc<dyn Hittable + Send + Sync>;
+        // jay = Arc::new(RotateY::from(jay, 90.0));
+        let mut jay = Quad::make_box(
+            &Point3::from(0.0, 0.0, 0.0),
+            &Point3::from(165.0, 330.0, 165.0),
+            jay_surface.clone(),
+        ) as Arc<dyn Hittable + Send + Sync>;
+        jay = Arc::new(RotateY::from(jay, 15.0));
+        jay = Arc::new(Translate::from(jay, Vec3::from(265.0, 0.0, 295.0)));
+
         world.add(jay);
 
-        let glass = Arc::new(MatEnum::Dielectric(Dielectric::from(1.5)));
-        let mut ball =
-            Arc::new(Sphere::from(jay_point, 200.0, glass)) as Arc<dyn Hittable + Send + Sync>;
-        ball = Arc::new(RotateY::from(ball, 90.0));
-        world.add(ball);
+        // let glass = Arc::new(MatEnum::Dielectric(Dielectric::from(1.5)));
+        // let mut ball =
+        //     Arc::new(Sphere::from(jay_point, 200.0, glass)) as Arc<dyn Hittable + Send + Sync>;
+        // ball = Arc::new(RotateY::from(ball, 90.0));
+        // world.add(ball);
 
         // Light Sources
         let sun = Arc::new(Sphere::from(
