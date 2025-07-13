@@ -1,17 +1,17 @@
 use sdl2::video::{GLContext, SwapInterval, Window};
 use sdl2::{EventPump, Sdl};
 pub struct Winsdl {
-    pub sdl: Sdl,
+    pub _sdl: Sdl,
     pub window: Window,
-    pub gl_context: GLContext,
-    pub gl: (),
+    pub _gl_context: GLContext,
+    pub _gl: (),
     pub event_pump: EventPump,
 }
 
 impl Winsdl {
     pub fn new(width: usize, height: usize) -> Result<Self, &'static str> {
-        let sdl = sdl2::init().unwrap();
-        let video_subsystem = sdl.video().unwrap();
+        let _sdl = sdl2::init().unwrap();
+        let video_subsystem = _sdl.video().unwrap();
 
         let gl_attr = video_subsystem.gl_attr();
         gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
@@ -24,8 +24,8 @@ impl Winsdl {
             .build()
             .unwrap();
 
-        let gl_context = window.gl_create_context().unwrap();
-        let gl = gl::load_with(|s| {
+        let _gl_context = window.gl_create_context().unwrap();
+        let _gl = gl::load_with(|s| {
             video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void
         });
 
@@ -34,13 +34,13 @@ impl Winsdl {
             .gl_set_swap_interval(SwapInterval::VSync)
             .unwrap();
 
-        let event_pump: EventPump = sdl.event_pump().unwrap();
+        let event_pump: EventPump = _sdl.event_pump().unwrap();
 
         Ok(Winsdl {
-            sdl,
+            _sdl,
             window,
-            gl_context,
-            gl,
+            _gl_context,
+            _gl,
             event_pump,
         })
     }

@@ -18,9 +18,7 @@ pub fn render_to_memory(
     pixel_pipe: Sender<(i64, i64, Color)>,
 ) -> Vec<String> {
     let start_time = Instant::now();
-
     let pool = ThreadPool::new(NUM_OF_ACTIVE_THREADS);
-
     let (tx, rx) = channel();
 
     println!("Submitting Work To Threads...");
@@ -50,7 +48,6 @@ pub fn render_to_memory(
         });
     }
 
-    // let mut results = Vec::with_capacity(camera.image_height as usize + 1);
     let mut results = SortedVec::with_capacity(camera.image_height as usize + 1);
     rx.iter().take(camera.image_height as usize).for_each(|n| {
         results.push(n);

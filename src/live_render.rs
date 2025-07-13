@@ -8,7 +8,6 @@ use sdl2::surface::Surface;
 
 use crate::math_structures::color::Color;
 use crate::winsdl::Winsdl;
-use crate::NUM_OF_ACTIVE_THREADS;
 
 pub fn show_screen(
     width: usize,
@@ -26,9 +25,8 @@ pub fn show_screen(
     let mut surface = Surface::new(width as u32, height as u32, PixelFormatEnum::RGB24).unwrap();
     let mut texture;
 
-    let last_applied = Instant::now();
-    let max_chunk = width * NUM_OF_ACTIVE_THREADS;
-    let max_wait = Duration::from_secs(3);
+    let mut last_applied = Instant::now();
+    let max_wait = Duration::from_millis(16);
     let pitch = surface.pitch() as usize;
     let mut pending_pixels = vec![];
     'running: loop {
@@ -37,7 +35,9 @@ pub fn show_screen(
                 Event::Quit { .. } => {
                     break 'running;
                 }
-                _ => {}
+                _ => {
+                    break;
+                }
             }
         }
         let value = rx.recv();
@@ -45,7 +45,7 @@ pub fn show_screen(
             pending_pixels.push(value.unwrap());
         }
 
-        if pending_pixels.len() > max_chunk || max_wait > last_applied.elapsed() {
+        if max_wait < last_applied.elapsed() {
             change_surface(&pending_pixels, pitch, &mut surface);
             pending_pixels.clear();
             texture = surface.as_texture(&texture_creator).unwrap();
@@ -61,6 +61,7 @@ pub fn show_screen(
                 .unwrap();
             // Present the updated canvas
             canvas.present();
+            last_applied = Instant::now();
         }
     }
 

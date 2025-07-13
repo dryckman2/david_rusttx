@@ -17,7 +17,6 @@ use scenes::chat_scene::ChatScene;
 use scenes::jay_patel_scene::JayPatelScene;
 use scenes::purple_cornell_box_scene::PurpleCornellBoxScene;
 
-// use crate::live_render::show_screen;
 use crate::live_render::show_screen;
 use crate::multithreading::render_to_memory;
 use crate::scenes::cornell_box_scene::CornellBoxScene;
@@ -37,17 +36,18 @@ use std::io::{self, Write};
 use std::sync::mpsc::channel;
 use std::thread::{self};
 
-pub const NUM_OF_ACTIVE_THREADS: usize = 4;
+pub const NUM_OF_ACTIVE_THREADS: usize = 1000;
+pub const CONCURRENT_ROWS: usize = 30;
 pub const IMAGE_WIDTH: i64 = 800;
-pub const SAMPLE_PP: i64 = 500;
+pub const SAMPLE_PP: i64 = 1000;
 pub const MAX_DEPTH: i64 = 50;
 
 fn main() {
-    let mut scene;
+    let mut scene: Box<dyn Scene>;
     let i = scene_selector().unwrap();
     match i {
         1 => {
-            scene = Box::new(QuadsScene::blank()) as Box<dyn Scene>;
+            scene = Box::new(QuadsScene::blank());
         }
         2 => {
             scene = Box::new(TwoPerlinSpheresScene::blank());
